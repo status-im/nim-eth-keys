@@ -5,10 +5,10 @@ import strutils, ttmath
 
 type
   PublicKey* = object
-    raw_key*: array[64, byte]
+    raw_key*: array[2, UInt256]
 
   PrivateKey* = object
-    raw_key*: array[32, byte]
+    raw_key*: UInt256
     public_key*: PublicKey
 
   BaseKey* = PrivateKey|PublicKey

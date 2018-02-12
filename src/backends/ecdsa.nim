@@ -8,22 +8,13 @@ import  ../datatypes, ../constants,
 import  ttmath, keccak_tiny, strutils,
         nimsha2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
 
-
-proc decode_public_key*(key: PublicKey): array[2, UInt256] {.noInit.}=
-  result = cast[type result](key.raw_key)
-
-proc encode_raw_public_key*(raw_key: array[2, UInt256]): PublicKey {.noInit.}=
-  result.raw_key = cast[array[64, byte]](raw_key)
-
 proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
   # TODO: allow to switch implementation based on backend
-  let private_key_as_num = cast[UInt256](key.raw_key)
 
-  if private_key_as_num >= SECPK1_N:
+  if key.raw_key >= SECPK1_N:
     raise newException(ValueError, "Invalid private key")
 
-  let raw_public_key = fast_multiply(SECPK1_G, private_key_as_num)
-  result = raw_public_key.encode_raw_public_key
+  result.raw_key = fast_multiply(SECPK1_G, key.raw_key)
 
 proc ecdsa_raw_verify*(msg_hash: Hash[256], vrs: Signature, key: PublicKey): bool =
   let
@@ -51,9 +42,9 @@ proc deterministic_generate_k(msg_hash: Hash[256], key: PrivateKey): UInt256 =
 
   let
     # TODO: avoid heap allocation
-    k_1 = k_0.hmac_sha256(@v_0 & @[0x00.byte] & @(key.raw_key) & @(msg_hash.data))
+    k_1 = k_0.hmac_sha256(@v_0 & @[0x00.byte] & @cast[array[32, byte]](key.raw_key) & @(msg_hash.data))
     v_1 = cast[array[32, byte]](k_1.hmac_sha256(@v_0))
-    k_2 = k_1.hmac_sha256(@v_1 & @[0x01.byte] & @(key.raw_key) & @(msg_hash.data))
+    k_2 = k_1.hmac_sha256(@v_1 & @[0x01.byte] & @cast[array[32, byte]](key.raw_key) & @(msg_hash.data))
     v_2 = k_2.hmac_sha256(@v_1)
 
     kb = k_2.hmac_sha256(@v_2)

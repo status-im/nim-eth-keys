@@ -9,22 +9,19 @@
 
 import ./backends/ecdsa, ./datatypes
 import ./private/hex
-import keccak_tiny
+import keccak_tiny, ttmath
 
 # ################################
 # Initialization
-proc initPublicKey*(bytes: array[64, byte]): PublicKey =
-  result.raw_key = bytes
-
-proc initPrivateKey*(bytes: array[32, byte]): PrivateKey =
-  result.raw_key = bytes
-  result.public_key = private_key_to_public_key(result)
 
 proc initPublicKey*(hexString: string): PublicKey =
-  result.raw_key = hexToByteArray[64](hexString)
+  assert hexString.len == 128
+  result.raw_key[0] = hexToUInt256(hexString[0..<64])
+  result.raw_key[1] = hexToUInt256(hexString[64..<128])
 
 proc initPrivateKey*(hexString: string): PrivateKey =
-  result.raw_key = hexToByteArray[32](hexString)
+  assert hexString.len == 64
+  result.raw_key = hexToUInt256(hexString)
   result.public_key = private_key_to_public_key(result)
 
 # ################################
