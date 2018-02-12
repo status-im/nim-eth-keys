@@ -17,12 +17,3 @@ type
     v*: range[0.uint8 .. 1.uint8]
     r*: UInt256
     s*: UInt256
-
-proc to_bytes*(key: BaseKey): array[32, byte] | array[64, byte] =
-  # No-op to satisfy Python API
-  key.raw_key
-
-proc to_hex*(key: BaseKey): string =
-  result = "0x"
-  for i in key.raw_key:
-    result.add(i.to_hex)

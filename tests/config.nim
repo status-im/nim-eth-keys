@@ -26,8 +26,6 @@ import ttmath
 #     assert crypto.ecdsa_recover(msghash, sig) == pubkey
 # """
 
-
-
 type
   testKeySig* = object
     privkey*: PrivateKey

@@ -25,27 +25,36 @@ proc initPrivateKey*(hexString: string): PrivateKey =
   result.public_key = private_key_to_public_key(result)
 
 # ################################
+# Hex
+proc toHex*(key: PrivateKey): string =
+  result = key.raw_key.toHex
+
+proc toHex*(key: PublicKey): string =
+  result = key.raw_key[0].toHex
+  result.add key.raw_key[1].toHex
+
+# ################################
 # Public key interface
-proc pubKey_recover_from_msg_hash*(message_hash: Hash[256], sig: Signature): PublicKey {.inline.}=
+proc recover_pubkey_from_msg_hash*(message_hash: Hash[256], sig: Signature): PublicKey {.inline.}=
   ecdsa_raw_recover(message_hash, sig)
 
-proc pubKey_recover_from_msg*(message: string, sig: Signature): PublicKey {.inline.}=
+proc recover_pubkey_from_msg*(message: string, sig: Signature): PublicKey {.inline.}=
   let message_hash = keccak_256(message)
-  result = pubKey_recover_from_msg_hash(message_hash, sig)
+  result = recover_pubkey_from_msg_hash(message_hash, sig)
 
-proc pubKey_verify_msg_hash*(key: PublicKey, message_hash: Hash[256], sig: Signature): bool {.inline.}=
+proc verify_msg_hash*(key: PublicKey, message_hash: Hash[256], sig: Signature): bool {.inline.}=
   key == ecdsa_raw_recover(message_hash, sig)
 
-proc pubKey_verify_msg*(key: PublicKey, message: string, sig: Signature): bool {.inline.} =
+proc verify_msg*(key: PublicKey, message: string, sig: Signature): bool {.inline.} =
   let message_hash = keccak_256(message)
   key == ecdsa_raw_recover(message_hash, sig)
 
 # ################################
 # Private key interface
-proc privKey_sign_msg_hash*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.}=
+proc sign_msg_hash*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.}=
   ecdsa_raw_sign(message_hash, key)
 
-proc privKey_sign_msg*(key: PrivateKey, message: string): Signature {.inline.} =
+proc sign_msg*(key: PrivateKey, message: string): Signature {.inline.} =
   let message_hash = keccak_256(message)
   ecdsa_raw_sign(message_hash, key)
 

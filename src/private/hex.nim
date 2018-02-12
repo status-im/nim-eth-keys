@@ -1,7 +1,7 @@
 # Copyright (c) 2018 Status Research & Development GmbH
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
-import ttmath
+import ttmath, strutils, ./casting
 
 proc readHexChar(c: char): int =
   case c
@@ -31,6 +31,18 @@ proc hexToUInt256*(hexStr: string): UInt256 {.noSideEffect.}=
     inc(i, 2)
   assert hexStr.len - i == 2*N
 
-  while i < N:
+  while i < 2*N:
     result = result shl 4 or readHexChar(hexStr[i]).uint.u256
     inc(i)
+
+proc toHex*(n: UInt256): string =
+  var rem = n # reminder to encode
+
+  const
+    N = 32 # nb of bytes in n
+    hexChars = "0123456789abcdef"
+
+  result = newString(2*N)
+  for i in countdown(2*N - 1, 0):
+    result[i] = hexChars[(rem and 0xF.u256).getUInt.int]
+    rem = rem shr 4
