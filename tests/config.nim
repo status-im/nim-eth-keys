@@ -34,8 +34,7 @@ type
     pubkey*: PublicKey
     raw_sig*: Signature
 
-let # TODO: replace by const
-    # private_key_to_public_key must not use cast[UInt256] for that
+let
   alice* = testKeySig(
     privkey: initPrivateKey("9c0257114eb9399a2985f8e75dad7600c5d89fe3824ffa99ec1c3eb8bf3b0501"),
     pubkey: initPublicKey("5eed5fa3a67696c334762bb4823e585e2ee579aba3558d9955296d6c04541b426078dbd48d74af1fd0c72aa1a05147cf17be6b60bdbed6ba19b08ec28445b0ca"),
