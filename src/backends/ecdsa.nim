@@ -59,10 +59,10 @@ proc ecdsa_raw_sign*(msg_hash: Hash[256], key: PrivateKey): Signature =
     ry = fast_multiply(SECPK1_G, k)
     s_raw = inv(k, SECPK1_N) * (z + ry[0] * cast[UInt256](key.raw_key)) mod SECPK1_N
 
-    result.v = ((ry[1] mod 2.u256) ** (if s_raw * 2.u256 < SECPK1_N: 0'u64 else: 1'u64))
-    result.s =  if s_raw * 2.u256 < SECPK1_N: s_raw
-                else: SECPK1_N - s_raw
-    result.r = ry[0]
+  result.v = ((ry[1] mod 2.u256) ** (if s_raw * 2.u256 < SECPK1_N: 0'u64 else: 1'u64)).getUInt.uint8
+  result.s = if s_raw * 2.u256 < SECPK1_N: s_raw
+              else: SECPK1_N - s_raw
+  result.r = ry[0]
 
 proc ecdsa_raw_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit.} =
   let v = vrs.v + 27

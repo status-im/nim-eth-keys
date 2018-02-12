@@ -13,7 +13,7 @@ type
 
   BaseKey* = PrivateKey|PublicKey
 
-  Signature* {.partial.}= object
+  Signature* = object
     v*: range[0.uint8 .. 1.uint8]
     r*: UInt256
     s*: UInt256
