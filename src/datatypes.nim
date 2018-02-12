@@ -1,7 +1,7 @@
 # Copyright (c) 2018 Status Research & Development GmbH
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
-import strutils, keccak_tiny, ttmath
+import strutils, ttmath
 
 type
   PublicKey* = object
@@ -26,13 +26,3 @@ proc to_hex*(key: BaseKey): string =
   result = "0x"
   for i in key.raw_key:
     result.add(i.to_hex)
-
-proc initPublicKey*(bytes: array[64, byte]): PublicKey =
-  result.raw_key = bytes
-
-# proc pubKey_recover_from_msg_hash*(message_hash: Hash, sig: Signature): PublicKey =
-#   ecdsa_recover()
-
-# proc pubKey_recover_from_msg*(message: string, sig: Signature): PublicKey {.inline.}=
-#   let message_hash = keccak_256(message)
-#   result = pubKey_recover_from_msg_hash(message_hash, sig)

@@ -25,7 +25,7 @@ proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
   let raw_public_key = fast_multiply(SECPK1_G, private_key_as_num)
   result = raw_public_key.encode_raw_public_key
 
-proc ecds_raw_verify*(msg_hash: Hash[256], vrs: Signature, key: PublicKey): bool =
+proc ecdsa_raw_verify*(msg_hash: Hash[256], vrs: Signature, key: PublicKey): bool =
   let
     raw_public_key = cast[array[2, UInt256]](key.raw_key)
     v = vrs.v + 27
@@ -60,7 +60,7 @@ proc deterministic_generate_k(msg_hash: Hash[256], key: PrivateKey): UInt256 =
 
   result = cast[UInt256](kb)
 
-proc ecds_raw_sign(msg_hash: Hash[256], key: PrivateKey): Signature =
+proc ecdsa_raw_sign*(msg_hash: Hash[256], key: PrivateKey): Signature =
   let
     z = cast[Uint256](msg_hash)
     k = deterministic_generate_k(msg_hash, key)
@@ -73,7 +73,7 @@ proc ecds_raw_sign(msg_hash: Hash[256], key: PrivateKey): Signature =
                 else: SECPK1_N - s_raw
     result.r = ry[0]
 
-proc ecdsa_raw_recover(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit.} =
+proc ecdsa_raw_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit.} =
   let v = vrs.v + 27
 
   if not (27 <= v and v <= 34): # TODO: what is this? use ranged types
