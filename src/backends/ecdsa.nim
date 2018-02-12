@@ -1,8 +1,12 @@
 # Copyright (c) 2018 Status Research & Development GmbH
-# Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).```
+# Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
-import ../datatypes, ../constants, ./jacobian, ./mod_arithmetic
-import ttmath, keccak_tiny, strutils
+import  ../datatypes, ../constants,
+        ../private/array_utils,
+        ./jacobian, ./mod_arithmetic, ./hmac
+
+import  ttmath, keccak_tiny, strutils,
+        nimsha2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
 
 
 proc decode_public_key*(key: PublicKey): array[2, UInt256] {.noInit.}=
@@ -21,8 +25,7 @@ proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
   let raw_public_key = fast_multiply(SECPK1_G, private_key_as_num)
   result = raw_public_key.encode_raw_public_key
 
-proc ecds_raw_verify*(msg_hash: Hash[256], vrs: Vrs, key: PublicKey): bool =
-
+proc ecds_raw_verify*(msg_hash: Hash[256], vrs: Signature, key: PublicKey): bool =
   let
     raw_public_key = cast[array[2, UInt256]](key.raw_key)
     v = vrs.v + 27
@@ -41,7 +44,36 @@ proc ecds_raw_verify*(msg_hash: Hash[256], vrs: Vrs, key: PublicKey): bool =
           )
   result = vrs.r == xy[0] and vrs.r.isOdd and vrs.s.isOdd
 
-proc ecdsa_raw_recover(msg_hash: Hash[256], vrs: Vrs): PublicKey {.noInit.} =
+proc deterministic_generate_k(msg_hash: Hash[256], key: PrivateKey): UInt256 =
+  const
+    v_0 = initArray[32, byte](0x01'u8)
+    k_0 = initArray[32, byte](0x00'u8)
+
+  let
+    # TODO: avoid heap allocation
+    k_1 = k_0.hmac_sha256(@v_0 & @[0x00.byte] & @(key.raw_key) & @(msg_hash.data))
+    v_1 = cast[array[32, byte]](k_1.hmac_sha256(@v_0))
+    k_2 = k_1.hmac_sha256(@v_1 & @[0x01.byte] & @(key.raw_key) & @(msg_hash.data))
+    v_2 = k_2.hmac_sha256(@v_1)
+
+    kb = k_2.hmac_sha256(@v_2)
+
+  result = cast[UInt256](kb)
+
+proc ecds_raw_sign(msg_hash: Hash[256], key: PrivateKey): Signature =
+  let
+    z = cast[Uint256](msg_hash)
+    k = deterministic_generate_k(msg_hash, key)
+
+    ry = fast_multiply(SECPK1_G, k)
+    s_raw = inv(k, SECPK1_N) * (z + ry[0] * cast[UInt256](key.raw_key)) mod SECPK1_N
+
+    result.v = ((ry[1] mod 2.u256) ** (if s_raw * 2.u256 < SECPK1_N: 0'u64 else: 1'u64))
+    result.s =  if s_raw * 2.u256 < SECPK1_N: s_raw
+                else: SECPK1_N - s_raw
+    result.r = ry[0]
+
+proc ecdsa_raw_recover(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit.} =
   let v = vrs.v + 27
 
   if not (27 <= v and v <= 34): # TODO: what is this? use ranged types
