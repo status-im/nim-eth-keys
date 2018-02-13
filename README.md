@@ -5,3 +5,9 @@
 
 A reimplementation in pure Nim of [eth-keys](https://github.com/ethereum/eth-keys), the common API for Ethereum key operations.
 
+# Experimental
+
+Warning ⚠: current native backend is a proof of concept, not suitable for production use:
+  - Future versions will use libsecp256k1 as a cryptographic backend, a proven crypto library.
+
+DO NOT USE for production
