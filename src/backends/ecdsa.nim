@@ -18,7 +18,7 @@ proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
 
 proc ecdsa_raw_verify*(msg_hash: Hash[256], vrs: Signature, key: PublicKey): bool =
   let
-    w = inv(vrs.s, SECPK1_N)
+    w = invmod(vrs.s, SECPK1_N)
     z = msg_hash.toUInt256
 
     u1 = (z * w) mod SECPK1_N
@@ -51,7 +51,7 @@ proc ecdsa_raw_sign*(msg_hash: Hash[256], key: PrivateKey): Signature =
     k = deterministic_generate_k(msg_hash, key)
 
     ry = fast_multiply(SECPK1_G, k)
-    s_raw = inv(k, SECPK1_N) * (z + ry[0] * key.raw_key) mod SECPK1_N
+    s_raw = invmod(k, SECPK1_N) * (z + ry[0] * key.raw_key) mod SECPK1_N
 
   result.v = ((ry[1] mod 2.u256) ** (if s_raw * 2.u256 < SECPK1_N: 0'u64 else: 1'u64)).getUInt.uint8
   result.s = if s_raw * 2.u256 < SECPK1_N: s_raw
@@ -84,6 +84,6 @@ proc ecdsa_raw_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit
       vrs.s
       )
     Qr = jacobian_add(Gz, XY)
-    Q = jacobian_multiply(Qr, inv(vrs.r, SECPK1_N))
+    Q = jacobian_multiply(Qr, invmod(vrs.r, SECPK1_N))
 
   result.raw_key = from_jacobian(Q)

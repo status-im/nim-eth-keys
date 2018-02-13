@@ -11,31 +11,6 @@ proc `**`*(a: UInt256, b: uint64|UInt256): UInt256 =
   # alias. Note: this has the same precedence as `*`
   pow(a, b)
 
-proc inv*(a, n: UInt256): UInt256 =
-  if a == 0.u256:
-    return 0.u256
-
-  var
-    lm = 1.u256
-    hm = 0.u256
-    lo = a mod n
-    hi = n
-
-    r: UInt256
-    nm: UInt256
-    nlo: UInt256
-
-  while lo > 1.u256:
-    r   = hi div lo
-    nm  = hm - lm * r
-    nlo = hi - lo * r
-    lm  = nm
-    lo  = nlo
-    hm  = lm
-    hi  = lo
-
-  result = lm mod n
-
 proc to_jacobian(p: array[2, UInt256]): array[3, UInt256] {.noInit.}=
   [p[0], p[1], 1.u256]
 
@@ -50,7 +25,7 @@ proc jacobian_double(p: array[3, UInt256]): array[3, UInt256] {.noInit.}=
     M   = (3.u256 * (p[0] ** 2.u256) + SECPK1_A * (p[2] ** 4.u256)) mod SECPK1_P
     nx  = (M ** 2.u256 - 2.u256 * S)                                mod SECPK1_P
     ny  = (M * (S - nx) - 8.u256 * ysq ** 2.u256)                   mod SECPK1_P
-    nz  = (2.u256 * p[1] * p[2])                                    mod SECPK1_P
+    nz  = mulmod(mulmod(2.u256, p[1], SECPK1_P), p[2], SECPK1_P)    # 2.u256 * p[1] * p[2] mod SECPK1_P
 
   result = [nx, ny, nz]
 
@@ -84,7 +59,7 @@ proc jacobian_add*(p, q: array[3, UInt256]): array[3, UInt256] {.noInit.}=
   result = [nx, ny, nz]
 
 proc from_jacobian*(p: array[3, UInt256]): array[2, UInt256] =
-  let z = inv(p[2], SECPK1_P)
+  let z = invmod(p[2], SECPK1_P)
   result = [(p[0] * z**2.u256) mod SECPK1_P, (p[1] * z**3.u256) mod SECPK1_P]
 
 proc jacobian_multiply*(a: array[3, UInt256], n: UInt256): array[3, UInt256] =
