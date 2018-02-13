@@ -1,9 +1,8 @@
 # Copyright (c) 2018 Status Research & Development GmbH
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
-import  ../datatypes, ../constants,
-        ../private/[array_utils, casting],
-        ./jacobian, ./mod_arithmetic, ./hmac
+import  ../datatypes, ../private/[array_utils, casting],
+        ./jacobian, ./mod_arithmetic, ./hmac, ./constants
 
 import  ttmath, keccak_tiny, strutils,
         nimsha2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
@@ -76,7 +75,7 @@ proc ecdsa_raw_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit
     if xcubedaxb - y * y != 0.u256 or
         not (vrs.r mod SECPK1_N == 1.u256) or
         not (vrs.s mod SECPK1_N == 1.u256):
-      raise newException(ValueError, "BadSignature")
+      raise newException(ValueError, "Bad signature")
 
   let
     z = msg_hash.toUInt256

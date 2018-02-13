@@ -7,9 +7,10 @@
 # Note: for now only a native pure Nim backend is supported
 # In the future alternative, proven crypto backend will be added like libsecpk1
 
-import ./backends/ecdsa, ./datatypes
-import ./private/hex
+import ./private/hex, ./datatypes
 import keccak_tiny, ttmath
+
+import ./backend_native/ecdsa
 
 # ################################
 # Initialization
