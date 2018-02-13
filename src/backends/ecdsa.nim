@@ -21,8 +21,8 @@ proc ecdsa_raw_verify*(msg_hash: Hash[256], vrs: Signature, key: PublicKey): boo
     w = invmod(vrs.s, SECPK1_N)
     z = msg_hash.toUInt256
 
-    u1 = (z * w) mod SECPK1_N
-    u2 = (vrs.r * w) mod SECPK1_N
+    u1 = mulmod(z, w, SECPK1_N)
+    u2 = mulmod(vrs.r, w, SECPK1_N)
     xy = fast_add(
             fast_multiply(SECPK1_G, u1),
             fast_multiply(key.raw_key, u2)
@@ -46,38 +46,43 @@ proc deterministic_generate_k(msg_hash: Hash[256], key: PrivateKey): UInt256 =
   result = kb.toUInt256
 
 proc ecdsa_raw_sign*(msg_hash: Hash[256], key: PrivateKey): Signature =
-  let
-    z = msg_hash.toUInt256
-    k = deterministic_generate_k(msg_hash, key)
+  modulo(SECPK1_N):
+    let
+      z = msg_hash.toUInt256
+      k = deterministic_generate_k(msg_hash, key)
 
-    ry = fast_multiply(SECPK1_G, k)
-    s_raw = invmod(k, SECPK1_N) * (z + ry[0] * key.raw_key) mod SECPK1_N
+      ry = fast_multiply(SECPK1_G, k)
+      s_raw = invmod(k, SECPK1_N) * (z + ry[0] * key.raw_key)
 
-  result.v = ((ry[1] mod 2.u256) ** (if s_raw * 2.u256 < SECPK1_N: 0'u64 else: 1'u64)).getUInt.uint8
+  result.v = uint8 getUint `xor`(
+              ry[1] mod 2.u256,
+              if s_raw * 2.u256 < SECPK1_N: 0.u256 else: 1.u256
+              )
   result.s = if s_raw * 2.u256 < SECPK1_N: s_raw
               else: SECPK1_N - s_raw
   result.r = ry[0]
 
 proc ecdsa_raw_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit.} =
+  modulo(SECPK1_P):
+    let
+      x = vrs.r
+      xcubedaxb = x * x * x + SECPK1_A * x + SECPK1_B
+      beta = pow(xcubedaxb, (SECPK1_P + 1.u256) div 4.u256)
+      y = if vrs.v == 0 xor beta.isEven: beta # TODO: precedence rule
+          else: SECPK1_P - beta
+    # If xcubedaxb is not a quadratic residue, then r cannot be the x coord
+    # for a point on the curve, and so the sig is invalid
 
-  let
-    x = vrs.r
-    xcubedaxb = (x * x * x + SECPK1_A * x + SECPK1_B) mod SECPK1_P
-    beta = pow(xcubedaxb, (SECPK1_P + 1.u256) div 4.u256) mod SECPK1_P
-    y = if vrs.v.u256 mod (2.u256 ** beta) mod 2.u256 == 1.u256: beta # TODO: precedence rule
-        else: SECPK1_P - beta
-  # If xcubedaxb is not a quadratic residue, then r cannot be the x coord
-  # for a point on the curve, and so the sig is invalid
-  if (xcubedaxb - y * y) mod SECPK1_P != 0.u256 or
-      not (vrs.r mod SECPK1_N == 1.u256) or
-      not (vrs.s mod SECPK1_N == 1.u256):
-    raise newException(ValueError, "BadSignature")
+    if xcubedaxb - y * y != 0.u256 or
+        not (vrs.r mod SECPK1_N == 1.u256) or
+        not (vrs.s mod SECPK1_N == 1.u256):
+      raise newException(ValueError, "BadSignature")
 
   let
     z = msg_hash.toUInt256
     Gz = jacobian_multiply(
       [SECPK1_Gx, SECPK1_Gy,1.u256],
-      (SECPK1_N - z) mod SECPK1_N
+      submod(SECPK1_N, z, SECPK1_N)
       )
     XY = jacobian_multiply(
       [SECPK1_Gx, SECPK1_Gy,1.u256],

@@ -20,16 +20,31 @@ proc addmod*(a, b, m: UInt256): UInt256 =
             else: b mod m
 
   # We don't do a + b to avoid overflows
-  # But we know that m at least is inferior to biggest T
+  # But we know that m at least is inferior to biggest UInt256
 
   let b_from_m = m - b_m
   if a_m >= b_from_m:
-    result = a_m - b_from_m
-  else:
-    result = m - b_from_m + a_m
+    return a_m - b_from_m
+  return m - b_from_m + a_m
+
+proc submod*(a, b, m: UInt256): UInt256 =
+  ## Modular substraction
+
+  let a_m = if a < m: a
+            else: a mod m
+  if b == 0.u256:
+    return a_m
+  let b_m = if b < m: b
+            else: b mod m
+
+  # We don't do a - b to avoid overflows
+
+  if a_m >= b_m:
+    return a_m - b_m
+  return m - b_m + a_m
 
 proc doublemod(a, m: UInt256): UInt256 {.inline.}=
-  ## double a modulo m
+  ## double a modulo m. assume a < m
   result = a
   if a >= m - a:
     result -= m
@@ -38,8 +53,11 @@ proc doublemod(a, m: UInt256): UInt256 {.inline.}=
 proc mulmod*(a, b, m: UInt256): UInt256 =
   ## Modular multiplication
 
-  var a_m = a mod m
-  var b_m = b mod m
+  var a_m = if a < m: a
+            else: a mod m
+  var b_m = if b < m: b
+            else: b mod m
+
   if b_m > a_m:
     swap(a_m, b_m)
   while b_m > 0.u256:
@@ -117,9 +135,19 @@ proc invmod*(a, m: UInt256): UInt256 =
     return x
   return m - x
 
-
-
-
+template modulo*(modulus: UInt256, body: untyped): untyped =
+  # `+`, `*`, `**` and pow will be replaced by their modular version
+  template `+`(a, b: UInt256): UInt256 =
+    addmod(a, b, `modulus`)
+  template `-`(a, b: UInt256): UInt256 =
+    submod(a, b, `modulus`)
+  template `*`(a, b: UInt256): UInt256 =
+    mulmod(a, b, `modulus`)
+  template `**`(a, b: UInt256): UInt256 =
+    expmod(a, b, `modulus`)
+  template pow(a, b: UInt256): UInt256 =
+    expmod(a, b, `modulus`)
+  body
 
 when isMainModule:
   # https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/fast-modular-exponentiation
