@@ -1,7 +1,7 @@
 # Copyright (c) 2018 Status Research & Development GmbH
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
-import ttmath, strutils, keccak_tiny, nimsha2, strutils
+import ttmath, strutils, strutils
 
 # Note on endianness:
 # - UInt256 uses host endianness
@@ -16,10 +16,10 @@ import ttmath, strutils, keccak_tiny, nimsha2, strutils
 type ByteArrayBE*[N: static[int]] = distinct array[N, byte]
   ## A byte array that stores bytes in big-endian order
 
-proc `[]`[N: static[int], I: Ordinal](ba: ByteArrayBE[N], i: I): byte {.noSideEffect.}=
+proc `[]`*[N: static[int], I: Ordinal](ba: ByteArrayBE[N], i: I): byte {.noSideEffect.}=
   (array[N,byte])(ba)[i]
 
-proc `[]=`[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I, val: byte) {.noSideEffect.}=
+proc `[]=`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I, val: byte) {.noSideEffect.}=
   (array[N,byte])(ba)[i] = val
 
 proc readUint256BE*(ba: ByteArrayBE[32]): UInt256 {.noSideEffect.}=
@@ -87,6 +87,11 @@ proc toHex*(n: UInt256): string {.noSideEffect.}=
 proc toHex*[N: static[int]](ba: ByteArrayBE[N]): string {.noSideEffect.}=
   ## Convert a big-endian byte-array to its hex representation
   ## Output is in lowercase
+  ##
+  ## Warning ⚠: Do not use toHex for hex representation of Public Keys
+  ##   Use the ``serialize`` proc:
+  ##     - PublicKey is actually 2 separate numbers corresponding to coordinate on elliptic curve
+  ##     - It is resistant against timing attack
 
   const hexChars = "0123456789abcdef"
 
