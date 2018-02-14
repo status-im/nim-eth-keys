@@ -6,6 +6,7 @@ license       = "MIT"
 srcDir        = "src"
 
 ### Dependencies
+
 requires "nim >= 0.17.2", "keccak_tiny >= 0.1.0", "ttmath >= 0.1.0", "nimSHA2", "secp256k1"
 
 proc test(name: string, lang: string = "cpp") =
