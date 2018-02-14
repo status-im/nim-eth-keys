@@ -5,9 +5,7 @@
 
 A reimplementation in pure Nim of [eth-keys](https://github.com/ethereum/eth-keys), the common API for Ethereum key operations.
 
-# Experimental
+By default, Nim eth-keys uses Bitcoin's [libsecp256k1](https://github.com/bitcoin-core/secp256k1) as a backend.
+Make sure libsecp256k1 is available on your system.
 
-Warning ⚠: current native backend is a proof of concept, not suitable for production use:
-  - Future versions will use libsecp256k1 as a cryptographic backend, a proven crypto library.
-
-DO NOT USE for production
+An experimental pure Nim backend (Warning ⚠: do not use in production) is available with the compilation switch `-d:backend_native`
