@@ -4,11 +4,11 @@
 import ttmath, strutils, keccak_tiny, nimsha2, strutils
 
 # Note on endianness:
-# - UInt256 uses host endianess
+# - UInt256 uses host endianness
 # - Libsecp256k1, Ethereum EVM expect Big Endian
 #   https://github.com/ethereum/evmjit/issues/91
 # - Keccak expects least-significant byte first: http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
-#   Appendix B.1 p37 and outputs a hash with the same endianess as input
+#   Appendix B.1 p37 and outputs a hash with the same endianness as input
 #   http://www.dianacoman.com/2018/02/08/eucrypt-chapter-9-byte-order-and-bit-disorder-in-keccak/
 #   https://www.reddit.com/r/crypto/comments/6287my/explanations_on_the_keccaksha3_paddingbyte/
 #   Note: Since Nim's Keccak-Tiny only accepts string as input, endianness does not matter.
