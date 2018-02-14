@@ -4,16 +4,16 @@
 import  ../src/eth_keys,
         ./config
 
-import  unittest, keccak_tiny
+import  unittest
 
-let
-  MSG = "message"
-  MSGHASH = keccak256(MSG)
-
-suite "Test key and signature datastructures":
-  test "Signing fromprivate key object":
+suite "Test key and signature data structure":
+  test "Signing from private key object":
 
     for person in [alice, bob, eve]:
-      let signature = person.privkey.sign_msg(MSG)
+      let
+        pk = initPrivateKey(person.privkey)
+        signature = pk.sign_msg(MSG)
 
-      check: verify_msg_hash(person.privkey.public_key, MSGHASH, signature)
+      check: signature.v == person.raw_sig.v
+      check: signature.r == person.raw_sig.r.u256
+      check: signature.s == person.raw_sig.s.u256

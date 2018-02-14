@@ -7,9 +7,9 @@
 # Note: for now only a native pure Nim backend is supported
 # In the future alternative, proven crypto backend will be added like libsecpk1
 
-import  ./datatypes,
-        ttmath
-# import keccak_tiny
+import  ./datatypes
+
+import keccak_tiny
 
 when defined(backend_native):
   import ./backend_native/ecdsa
@@ -48,9 +48,12 @@ proc initPrivateKey*(hexString: string): PrivateKey {.noInit.}=
 # proc sign_msg_hash*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.}=
 #   ecdsa_raw_sign(message_hash, key)
 
-# proc sign_msg*(key: PrivateKey, message: string): Signature {.inline.} =
-#   let message_hash = keccak_256(message)
-#   ecdsa_raw_sign(message_hash, key)
+proc sign_msg*(key: PrivateKey, message: string): Signature {.inline.} =
+  let message_hash = keccak_256(message)
+  ecdsa_sign(key, message_hash)
+
+proc sign_msg*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.} =
+  ecdsa_sign(key, message_hash)
 
 # # ################################
 # # Signature interface is a duplicate of the public key interface

@@ -19,6 +19,9 @@ type ByteArrayBE*[N: static[int]] = distinct array[N, byte]
 proc `[]`*[N: static[int], I: Ordinal](ba: ByteArrayBE[N], i: I): byte {.noSideEffect.}=
   (array[N,byte])(ba)[i]
 
+proc `[]`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I): var byte {.noSideEffect.}=
+  (array[N,byte])(ba)[i]
+
 proc `[]=`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I, val: byte) {.noSideEffect.}=
   (array[N,byte])(ba)[i] = val
 
@@ -51,6 +54,19 @@ proc hexToByteArrayBE*[N: static[int]](hexStr: string): ByteArrayBE[N] {.noSideE
 
   assert hexStr.len - i == 2*N
 
+  while i < N:
+    result[i] = hexStr[2*i].readHexChar shl 4 or hexStr[2*i+1].readHexChar
+    inc(i)
+
+proc hexToSeqByteBE*(hexStr: string): seq[byte] {.noSideEffect.}=
+  ## Read an hex string and store it in a sequence of bytes in Big-Endian order
+  var i = 0
+  if hexStr[i] == '0' and (hexStr[i+1] == 'x' or hexStr[i+1] == 'X'):
+    inc(i, 2) # Ignore 0x and 0X prefix
+
+  let N = (hexStr.len - i) div 2
+
+  result = newSeq[byte](N)
   while i < N:
     result[i] = hexStr[2*i].readHexChar shl 4 or hexStr[2*i+1].readHexChar
     inc(i)

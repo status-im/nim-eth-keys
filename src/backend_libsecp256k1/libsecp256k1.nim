@@ -1,5 +1,8 @@
-import ../datatypes
-import secp256k1
+# Copyright (c) 2018 Status Research & Development GmbH
+# Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
+
+import ../datatypes, ./ecdsa_recovery_wrapper
+import secp256k1, keccak_tiny
 
 const SECP256K1_CONTEXT_ALL = SECP256K1_CONTEXT_VERIFY or SECP256K1_CONTEXT_SIGN
 
@@ -10,8 +13,8 @@ proc `=destroy`(ctx: ptr secp256k1_context) =
   if not ctx.isNil:
     ctx.secp256k1_context_destroy
 
-type Serialized_PubKey = ByteArrayBE[65]
-  # header 0x04 (uncompressed) + 128 hex char
+type
+  Serialized_PubKey = ByteArrayBE[65]
 
 proc asPtrPubKey(key: PublicKey): ptr secp256k1_pubkey =
   cast[ptr secp256k1_pubkey](unsafeAddr key.raw_key)
@@ -22,19 +25,25 @@ proc asPtrCuchar(key: PrivateKey): ptr cuchar =
 proc asPtrCuchar(key: Serialized_PubKey): ptr cuchar =
   cast[ptr cuchar](unsafeAddr key)
 
-proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
+proc asPtrCuchar(msg_hash: Hash[256]): ptr cuchar =
+  cast[ptr cuchar](unsafeAddr msg_hash)
 
-  let valid:bool = bool secp256k1_ec_pubkey_create(
+proc asPtrRecoverableSignature(sig: Signature): ptr secp256k1_ecdsa_recoverable_signature =
+  cast[ptr secp256k1_ecdsa_recoverable_signature](unsafeAddr sig)
+
+proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
+  ## Generates a public key from the private key
+  let success:bool = bool secp256k1_ec_pubkey_create(
     ctx,
     result.asPtrPubKey,
     key.asPtrCuchar
   )
 
-  if not valid:
+  if not success:
     raise newException(ValueError, "Private key is invalid")
 
 proc serialize*(key: PublicKey): string =
-
+  ## Exports a publicKey to a hex string
   var
     tmp{.noInit.}: Serialized_PubKey
     tmp_len: csize = 65
@@ -51,3 +60,22 @@ proc serialize*(key: PublicKey): string =
   assert tmp_len == 65 # header 0x04 (uncompressed) + 128 hex char
 
   result = tmp.toHex
+
+proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.}=
+  ## Sign a message with a recoverable signature
+  ## Input:
+  ##   - A message encoded with keccak_256
+  ## Output:
+  ##   - A recoverable signature
+
+  let success:bool = bool secp256k1_ecdsa_sign_recoverable(
+    ctx,
+    result.asPtrRecoverableSignature,
+    msg_hash.asPtrCuchar,
+    key.asPtrCuchar,
+    nil, # Nonce function, default is RFC6979 (HMAC-SHA256)
+    nil  # Arbitrary data for the nonce function
+  )
+
+  if not success:
+    raise newException(ValueError, "The nonce generation function failed, or the private key was invalid.")
