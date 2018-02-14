@@ -75,11 +75,11 @@ proc secp256k1_ecdsa_recoverable_signature_serialize_compact*(
   output64: ptr cuchar;
   recid: ptr cint;
   sig: ptr secp256k1_ecdsa_recoverable_signature): cint {.secp.}
-  #  Serialize an ECDSA signature in compact format (64 bytes + recovery id).
-  #
-  #  Returns: 1
-  #  Args: ctx:      a secp256k1 context object
-  #  Out:  output64: a pointer to a 64-byte array of the compact signature (cannot be NULL)
-  #        recid:    a pointer to an integer to hold the recovery id (can be NULL).
-  #  In:   sig:      a pointer to an initialized signature object (cannot be NULL)
-  #
+  ##  Serialize an ECDSA signature in compact format (64 bytes + recovery id).
+  ##
+  ##  Returns: 1
+  ##  Args: ctx:      a secp256k1 context object
+  ##  Out:  output64: a pointer to a 64-byte array of the compact signature (cannot be NULL)
+  ##        recid:    a pointer to an integer to hold the recovery id (can be NULL).
+  ##  In:   sig:      a pointer to an initialized signature object (cannot be NULL)
+  ##

@@ -16,14 +16,17 @@ import ttmath, strutils, strutils
 type ByteArrayBE*[N: static[int]] = distinct array[N, byte]
   ## A byte array that stores bytes in big-endian order
 
-proc `[]`*[N: static[int], I: Ordinal](ba: ByteArrayBE[N], i: I): byte {.noSideEffect.}=
+proc `[]`*[N: static[int], I: Ordinal](ba: ByteArrayBE[N], i: I): byte {.noSideEffect, inline.}=
   (array[N,byte])(ba)[i]
 
-proc `[]`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I): var byte {.noSideEffect.}=
+proc `[]`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I): var byte {.noSideEffect, inline.}=
   (array[N,byte])(ba)[i]
 
-proc `[]=`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I, val: byte) {.noSideEffect.}=
+proc `[]=`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I, val: byte) {.noSideEffect, inline.}=
   (array[N,byte])(ba)[i] = val
+
+proc `==`*[N: static[int]](a, b: ByteArrayBE[N]): bool {.noSideEffect, inline.} =
+  (array[N, byte])(a) == (array[N, byte])(b)
 
 proc readUint256BE*(ba: ByteArrayBE[32]): UInt256 {.noSideEffect.}=
   ## Convert a big-endian array of Bytes to an UInt256 (in native host endianness)

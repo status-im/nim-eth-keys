@@ -24,29 +24,25 @@ proc initPrivateKey*(hexString: string): PrivateKey {.noInit.}=
   result.raw_key = hexToByteArrayBE[32](hexString)
   result.public_key = private_key_to_public_key(result)
 
-# proc initPublicKey*(hexString: string): PublicKey {.noInit, noSideEffect.}=
-#   result.raw_key = hexToByteArrayBE[64](hexString)
+# ################################
+# Public key/signature interface
 
-# # ################################
-# # Public key interface
-# proc recover_pubkey_from_msg_hash*(message_hash: Hash[256], sig: Signature): PublicKey {.inline.}=
-#   ecdsa_raw_recover(message_hash, sig)
+proc recover_pubkey_from_msg*(message_hash: Hash[256], sig: Signature): PublicKey {.inline.}=
+  ecdsa_recover(message_hash, sig)
 
-# proc recover_pubkey_from_msg*(message: string, sig: Signature): PublicKey {.inline.}=
-#   let message_hash = keccak_256(message)
-#   result = recover_pubkey_from_msg_hash(message_hash, sig)
+proc recover_pubkey_from_msg*(message: string, sig: Signature): PublicKey {.inline.}=
+  let message_hash = keccak_256(message)
+  ecdsa_recover(message_hash, sig)
 
-# proc verify_msg_hash*(key: PublicKey, message_hash: Hash[256], sig: Signature): bool {.inline.}=
-#   key == ecdsa_raw_recover(message_hash, sig)
+proc verify_msg*(key: PublicKey, message_hash: Hash[256], sig: Signature): bool {.inline.}=
+  key == ecdsa_recover(message_hash, sig)
 
-# proc verify_msg*(key: PublicKey, message: string, sig: Signature): bool {.inline.} =
-#   let message_hash = keccak_256(message)
-#   key == ecdsa_raw_recover(message_hash, sig)
+proc verify_msg*(key: PublicKey, message: string, sig: Signature): bool {.inline.} =
+  let message_hash = keccak_256(message)
+  key == ecdsa_recover(message_hash, sig)
 
 # # ################################
 # # Private key interface
-# proc sign_msg_hash*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.}=
-#   ecdsa_raw_sign(message_hash, key)
 
 proc sign_msg*(key: PrivateKey, message: string): Signature {.inline.} =
   let message_hash = keccak_256(message)
@@ -54,6 +50,3 @@ proc sign_msg*(key: PrivateKey, message: string): Signature {.inline.} =
 
 proc sign_msg*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.} =
   ecdsa_sign(key, message_hash)
-
-# # ################################
-# # Signature interface is a duplicate of the public key interface

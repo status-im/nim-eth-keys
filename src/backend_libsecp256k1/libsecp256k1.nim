@@ -68,7 +68,7 @@ proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.}=
   ## Output:
   ##   - A recoverable signature
 
-  let success:bool = bool secp256k1_ecdsa_sign_recoverable(
+  let success: bool = bool secp256k1_ecdsa_sign_recoverable(
     ctx,
     result.asPtrRecoverableSignature,
     msg_hash.asPtrCuchar,
@@ -79,3 +79,16 @@ proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.}=
 
   if not success:
     raise newException(ValueError, "The nonce generation function failed, or the private key was invalid.")
+
+proc ecdsa_recover*(msg_hash: Hash[256], sig: Signature): PublicKey =
+  ## Recover the Public Key from the message hash and the signature
+
+  let success: bool = bool secp256k1_ecdsa_recover(
+    ctx,
+    result.asPtrPubKey,
+    sig.asPtrRecoverableSignature,
+    msg_hash.asPtrCuchar
+  )
+
+  if not success:
+    raise newException(ValueError, "Failed to recover public key. Is the signature correct?")
