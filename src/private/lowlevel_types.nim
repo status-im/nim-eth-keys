@@ -116,5 +116,5 @@ proc toHex*[N: static[int]](ba: ByteArrayBE[N]): string {.noSideEffect.}=
 
   result = newString(2*N)
   for i in 0 ..< N:
-    result[2*i] = hexChars[ba[i] shr 4 and 0xF]
-    result[2*i+1] = hexChars[ba[i] and 0xF]
+    result[2*i] = hexChars[int ba[i] shr 4 and 0xF]
+    result[2*i+1] = hexChars[int ba[i] and 0xF]
