@@ -8,7 +8,8 @@ import  ttmath, keccak_tiny, strutils,
         nimsha2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
 
 
-proc decode_public_key(pubKey: ByteArrayBE[64]): array[2, UInt256] =
+proc decode_public_key(pubKey: ByteArrayBE[64]
+  ): array[2, UInt256] {.noInit,inline,noSideEffect.} =
 
   # Slicing with "result[0] = readUint256BE pubKey[0 ..< 32]" would allocate an intermediary seq
   # See https://github.com/nim-lang/Nim/issues/5753#issuecomment-369597564
@@ -23,7 +24,8 @@ proc decode_public_key(pubKey: ByteArrayBE[64]): array[2, UInt256] =
   result[0] = readUint256BE pk1[]
   result[1] = readUint256BE pk2[]
 
-proc encode_raw_public_key(pubKeyInt: array[2, Uint256]): ByteArrayBE[64] =
+proc encode_raw_public_key(pubKeyInt: array[2, Uint256]
+  ): ByteArrayBE[64] {.noInit,inline,noSideEffect.}=
 
   result[0 ..< 32] = pubKeyInt[0].toByteArrayBE
   result[32 ..< 64] = pubKeyInt[1].toByteArrayBE
@@ -67,7 +69,7 @@ proc deterministic_generate_k(msg_hash: Hash[256], key: PrivateKey): UInt256 =
 
   result = readUint256BE cast[ByteArrayBE[32]](kb)
 
-proc ecdsa_raw_sign*(msg_hash: Hash[256], key: PrivateKey): Signature =
+proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.} =
   modulo(SECPK1_N):
     let
       z = readUint256BE cast[ByteArrayBE[32]](msg_hash)
@@ -84,7 +86,7 @@ proc ecdsa_raw_sign*(msg_hash: Hash[256], key: PrivateKey): Signature =
               else: SECPK1_N - s_raw
   result.r = ry[0]
 
-proc ecdsa_raw_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit.} =
+proc ecdsa_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit.} =
   modulo(SECPK1_P):
     let
       x = vrs.r
@@ -114,3 +116,13 @@ proc ecdsa_raw_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit
     Q = jacobian_multiply(Qr, invmod(vrs.r, SECPK1_N))
 
   result.raw_key = encode_raw_public_key from_jacobian(Q)
+
+proc serialize*(key: PublicKey): string {.noSideEffect.}=
+  ## Exports a publicKey to a hex string
+
+  result = "04"
+
+  let decoded = key.raw_key.decode_public_key
+
+  result.add decoded[0].toHex
+  result.add decoded[1].toHex
