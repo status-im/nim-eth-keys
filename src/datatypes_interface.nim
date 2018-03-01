@@ -13,6 +13,7 @@ import keccak_tiny
 
 when defined(backend_native):
   import ./backend_native/ecdsa
+  export ecdsa.serialize
 else:
   import ./backend_libsecp256k1/libsecp256k1
   export libsecp256k1.serialize

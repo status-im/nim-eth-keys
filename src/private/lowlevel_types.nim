@@ -13,31 +13,21 @@ import ttmath, strutils, strutils
 #   https://www.reddit.com/r/crypto/comments/6287my/explanations_on_the_keccaksha3_paddingbyte/
 #   Note: Since Nim's Keccak-Tiny only accepts string as input, endianness does not matter.
 
-type ByteArrayBE*[N: static[int]] = distinct array[N, byte]
+type ByteArrayBE*[N: static[int]] = array[N, byte]
   ## A byte array that stores bytes in big-endian order
 
-proc `[]`*[N: static[int], I: Ordinal](ba: ByteArrayBE[N], i: I): byte {.noSideEffect, inline.}=
-  (array[N,byte])(ba)[i]
-
-proc `[]`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I): var byte {.noSideEffect, inline.}=
-  (array[N,byte])(ba)[i]
-
-proc `[]=`*[N: static[int], I: Ordinal](ba: var ByteArrayBE[N], i: I, val: byte) {.noSideEffect, inline.}=
-  (array[N,byte])(ba)[i] = val
-
-proc `==`*[N: static[int]](a, b: ByteArrayBE[N]): bool {.noSideEffect, inline.} =
-  (array[N, byte])(a) == (array[N, byte])(b)
-
-proc readUint256BE*(ba: ByteArrayBE[32]): UInt256 {.noSideEffect.}=
+proc readUint256BE*(ba: ByteArrayBE[32]): UInt256 {.noSideEffect, inline.}=
   ## Convert a big-endian array of Bytes to an UInt256 (in native host endianness)
   const N = 32
   for i in 0 ..< N:
+    {.unroll: 4.}
     result = result shl 8 or ba[i].u256
 
-proc toByteArrayBE*(num: UInt256): ByteArrayBE[32] {.noSideEffect, noInit.}=
+proc toByteArrayBE*(num: UInt256): ByteArrayBE[32] {.noSideEffect, noInit, inline.}=
   ## Convert an UInt256 (in native host endianness) to a big-endian byte array
   const N = 32
   for i in 0 ..< N:
+    {.unroll: 4.}
     result[i] = byte getUInt(num shr uint((N-1-i) * 8))
 
 proc readHexChar(c: char): byte {.noSideEffect.}=
