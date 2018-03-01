@@ -136,14 +136,14 @@ proc invmod*(a, m: UInt256): UInt256 =
   return m - x
 
 template modulo*(modulus: UInt256, body: untyped): untyped =
-  # `+`, `*`, `**` and pow will be replaced by their modular version
+  # `+`, `*`, `^` and pow will be replaced by their modular version
   template `+`(a, b: UInt256): UInt256 =
     addmod(a, b, `modulus`)
   template `-`(a, b: UInt256): UInt256 =
     submod(a, b, `modulus`)
   template `*`(a, b: UInt256): UInt256 =
     mulmod(a, b, `modulus`)
-  template `**`(a, b: UInt256): UInt256 =
+  template `^`(a, b: UInt256): UInt256 =
     expmod(a, b, `modulus`)
   template pow(a, b: UInt256): UInt256 =
     expmod(a, b, `modulus`)
