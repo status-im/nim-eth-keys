@@ -19,5 +19,9 @@ proc test(name: string, lang: string = "cpp") =
   switch("out", ("./build/" & name))
   setCommand lang, "tests/" & name & ".nim"
 
-task test, "Run all tests":
+task test, "Run all tests - libsecp256k1 backend":
+  test "all_tests"
+
+task test_backend_native, "Run all tests - pure Nim backend":
+  switch("define", "backend_native")
   test "all_tests"
