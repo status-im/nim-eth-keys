@@ -12,9 +12,6 @@ import algorithm
 proc initArray*[N: static[int], T](value: T): array[N, T] {.noInit.}=
   result.fill(value)
 
-proc `$`*[N:static[int]](a: array[N, byte]): string =
-  $(cast[array[N, char]](a))
-
 proc `&`*[N1, N2: static[int], T](
     a: array[N1, T],
     b: array[N2, T]
