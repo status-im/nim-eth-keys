@@ -2,7 +2,7 @@ packageName   = "eth_keys"
 version       = "0.0.1"
 author        = "Status Research & Development GmbH"
 description   = "A reimplementation in pure Nim of eth-keys, the common API for Ethereum key operations."
-license       = "Apache License 2.0"
+license       = "Apache License 2.0 or MIT"
 srcDir        = "src"
 
 ### Dependencies
