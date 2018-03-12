@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../datatypes, ./ecdsa_recovery_wrapper
+import ../datatypes
 import secp256k1, keccak_tiny
 
 const SECP256K1_CONTEXT_ALL = SECP256K1_CONTEXT_VERIFY or SECP256K1_CONTEXT_SIGN
