@@ -3,6 +3,7 @@
 [![License: Apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Stability: experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
+[![Build Status](https://travis-ci.org/status-im/nim-eth-keys.svg?branch=master)](https://travis-ci.org/status-im/nim-eth-keys)
 
 A reimplementation in pure Nim of [eth-keys](https://github.com/ethereum/eth-keys), the common API for Ethereum key operations.
 
