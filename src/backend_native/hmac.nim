@@ -1,4 +1,5 @@
-# Nim Eth-keys
+
+# Nim Eth-keyfile
 # Copyright (c) 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -10,7 +11,9 @@
 # Nim Implementation of HMAC
 # https://tools.ietf.org/html/rfc2104.html
 
-import ../private/array_utils
+# TODO: this is a duplicate of https://github.com/status-im/nim-eth-keys/blob/master/src/backend_native/hmac.nim
+# It should be replaced by a common crypto library in the future like https://github.com/cheatfate/nimcrypto
+
 import nimsha2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
 
 proc hmac_sha256*[N: static[int]](key: array[N, byte|char],
@@ -33,7 +36,16 @@ proc hmac_sha256*[N: static[int]](key: array[N, byte|char],
     k_ipad[i] = k[i] xor ipad
     k_opad[i] = k[i] xor opad
 
-  result = computeSHA256($k_opad & $computeSHA256($k_ipad & $data))
+  # computeSHA256 requires a string input output a SHA256Digest* = array[0..31, char]
+  # but using $digest creates a string with its ex representation meaning it's a pain to chain
+  # The fact that arrays are now printable in Nim 0.18 doesn't help
+  # As a workaround we seqify arrays with @ and then convert to string with $
+  # TODO Continuous integration
+
+  # inner pass
+  result = computeSHA256($cast[array[blockSize,char]](k_ipad) & data)
+  # outer pass
+  result = computeSHA256($cast[array[blockSize,char]](k_opad) & $result)
 
 
 when isMainModule:
