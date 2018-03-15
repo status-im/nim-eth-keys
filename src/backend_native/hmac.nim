@@ -43,7 +43,7 @@ proc hmac_sha256*[N: static[int]](key: array[N, byte|char],
   # TODO Continuous integration
 
   # inner pass
-  result = computeSHA256($cast[array[blockSize,char]](k_ipad) & data)
+  result = computeSHA256($cast[array[blockSize,char]](k_ipad) & cast[string](data))
   # outer pass
   result = computeSHA256($cast[array[blockSize,char]](k_opad) & $result)
 
