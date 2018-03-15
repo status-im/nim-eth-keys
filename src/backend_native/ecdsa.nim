@@ -11,7 +11,7 @@ import  ../datatypes, ../private/[array_utils, lowlevel_types],
         ./jacobian, ./mod_arithmetic, ./hmac, ./constants
 
 import  ttmath, keccak_tiny, strutils,
-        nimsha2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
+        nimSHA2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
 
 
 proc decode_public_key(pubKey: ByteArrayBE[64]

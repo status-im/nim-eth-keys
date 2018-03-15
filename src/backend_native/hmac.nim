@@ -14,7 +14,7 @@
 # TODO: this is a duplicate of https://github.com/status-im/nim-eth-keys/blob/master/src/backend_native/hmac.nim
 # It should be replaced by a common crypto library in the future like https://github.com/cheatfate/nimcrypto
 
-import nimsha2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
+import nimSHA2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
 
 proc hmac_sha256*[N: static[int]](key: array[N, byte|char],
                                   data: string|seq[byte|char]): SHA256Digest =
