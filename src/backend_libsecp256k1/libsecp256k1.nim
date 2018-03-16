@@ -67,6 +67,11 @@ proc serialize*(key: PublicKey): string =
 
   result = tmp.toHex
 
+proc parsePublicKey*(data: openarray[byte]): PublicKey =
+  ## Parse a variable-length public key into the PublicKey object
+  if secp256k1_ec_pubkey_parse(ctx, result.asPtrPubKey, cast[ptr cuchar](unsafeAddr data[0]), data.len.csize) != 1:
+    raise newException(Exception, "Could not parse public key")
+
 proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.}=
   ## Sign a message with a recoverable signature
   ## Input:

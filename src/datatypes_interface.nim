@@ -27,21 +27,27 @@ else:
 # ################################
 # Initialization
 
-proc initPrivateKey*(hexString: string): PrivateKey {.noInit.}=
-  result.raw_key = hexToByteArrayBE[32](hexString)
+proc initPrivateKey*(hexString: string): PrivateKey {.noInit.} =
+  hexToByteArrayBE(hexString, result.raw_key)
   result.public_key = private_key_to_public_key(result)
+
+proc initPublicKey*(hexString: string): PublicKey {.noInit.} =
+  var b: array[65, byte]
+  hexToByteArrayBE(hexString, b, 1, 64)
+  b[0] = 0x4 # Uncompressed. See docs for secp256k1_ec_pubkey_parse
+  result = parsePublicKey(b)
 
 # ################################
 # Public key/signature interface
 
-proc recover_pubkey_from_msg*(message_hash: Hash[256], sig: Signature): PublicKey {.inline.}=
+proc recover_pubkey_from_msg*(message_hash: Hash[256], sig: Signature): PublicKey {.inline.} =
   ecdsa_recover(message_hash, sig)
 
-proc recover_pubkey_from_msg*(message: string, sig: Signature): PublicKey {.inline.}=
+proc recover_pubkey_from_msg*(message: string, sig: Signature): PublicKey {.inline.} =
   let message_hash = keccak_256(message)
   ecdsa_recover(message_hash, sig)
 
-proc verify_msg*(key: PublicKey, message_hash: Hash[256], sig: Signature): bool {.inline.}=
+proc verify_msg*(key: PublicKey, message_hash: Hash[256], sig: Signature): bool {.inline.} =
   key == ecdsa_recover(message_hash, sig)
 
 proc verify_msg*(key: PublicKey, message: string, sig: Signature): bool {.inline.} =
