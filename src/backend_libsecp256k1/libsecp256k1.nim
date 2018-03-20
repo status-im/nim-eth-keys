@@ -48,8 +48,8 @@ proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
   if not success:
     raise newException(ValueError, "Private key is invalid")
 
-proc serialize*(key: PublicKey): string =
-  ## Exports a publicKey to a hex string
+proc serialize*(key: PublicKey, output: var openarray[byte], addPrefix = false) =
+  ## Exports a publicKey to `output` buffer so that it can be
   var
     tmp{.noInit.}: Serialized_PubKey
     tmp_len: csize = 65
@@ -64,13 +64,42 @@ proc serialize*(key: PublicKey): string =
   )
 
   assert tmp_len == 65 # header 0x04 (uncompressed) + 128 hex char
+  if addPrefix:
+    assert(output.len >= 65)
+    copyMem(addr output[0], addr tmp[0], 65)
+  else:
+    assert(output.len >= 64)
+    copyMem(addr output[0], addr tmp[1], 64) # Skip the 0x04 prefix
 
-  result = tmp.toHex
+proc toString*(key: PublicKey): string =
+  var data: array[64, byte]
+  key.serialize(data)
+  result = data.toHex
 
-proc parsePublicKey*(data: openarray[byte]): PublicKey =
+proc toStringWithPrefix*(key: PublicKey): string =
+  var data: array[65, byte]
+  key.serialize(data, true)
+  result = data.toHex
+
+proc serialize*(key: PublicKey): string {.deprecated.} = key.toStringWithPrefix()
+
+proc parsePublicKeyWithPrefix(data: openarray[byte], result: var PublicKey) =
   ## Parse a variable-length public key into the PublicKey object
   if secp256k1_ec_pubkey_parse(ctx, result.asPtrPubKey, cast[ptr cuchar](unsafeAddr data[0]), data.len.csize) != 1:
     raise newException(Exception, "Could not parse public key")
+
+proc parsePublicKey*(data: openarray[byte]): PublicKey =
+  ## Parse a variable-length public key into the PublicKey object
+  case data.len
+  of 65:
+    parsePublicKeyWithPrefix(data, result)
+  of 64:
+    var tmpData: Serialized_PubKey
+    copyMem(addr tmpData[1], unsafeAddr data[0], 64)
+    tmpData[0] = 0x04
+    parsePublicKeyWithPrefix(tmpData, result)
+  else: # TODO: Support other lengths
+    raise newException(Exception, "Wrong public key length")
 
 proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.}=
   ## Sign a message with a recoverable signature
@@ -103,3 +132,5 @@ proc ecdsa_recover*(msg_hash: Hash[256], sig: Signature): PublicKey =
 
   if not success:
     raise newException(ValueError, "Failed to recover public key. Is the signature correct?")
+
+proc `$`*(key: PublicKey): string {.inline.} = key.toString()

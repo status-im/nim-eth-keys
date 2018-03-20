@@ -17,6 +17,6 @@ suite "Testing private -> public key conversion":
     for person in [alice, bob, eve]:
       let privkey = initPrivateKey(person.privkey)
 
-      let computed_pubkey = privkey.public_key.serialize
+      let computed_pubkey = $privkey.public_key
 
-      check: computed_pubkey == "04" & person.pubkey # Serialization prefixes uncompressed public keys with 04
+      check: computed_pubkey == person.pubkey
