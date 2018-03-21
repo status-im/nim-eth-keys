@@ -7,8 +7,8 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ../src/private/lowlevel_types
-import unittest, ttmath, strutils
+import  ../src/private/[conversion_bytes, conversion_ttmath]
+import unittest, ttmath, strutils # TODO remove ttmath needs if backend libsecp256k1
 
 
 suite "Testing conversion functions: Hex, Bytes, Endianness":
