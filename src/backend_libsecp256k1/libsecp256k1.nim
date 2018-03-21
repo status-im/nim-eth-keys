@@ -153,3 +153,8 @@ proc ecdsa_recover*(msg_hash: Hash[256], sig: Signature): PublicKey =
     raise newException(ValueError, "Failed to recover public key. Is the signature correct?")
 
 proc `$`*(key: PublicKey): string {.inline.} = key.toString()
+
+proc `$`*(s: Signature): string =
+  var data: array[65, byte]
+  s.serialize(data)
+  data.toHex()
