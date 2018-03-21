@@ -9,9 +9,15 @@
 
 when defined(backend_native):
   echo "\nBackend tested: native\n"
+  when defined(c):
+    {.fatal: "The native backend require C++ compilation for ttmath.}".}
 else:
   echo "\nBackend tested: libsecp256k1\n"
+  when not defined(cpp):
+    echo "C backend chosen. Skipping ttmath_hex_bytes_conversion test"
 
-import  ./test_hex_bytes_conversion,
-        ./test_private_public_key_consistency,
+when defined(cpp):
+  import ./test_ttmath_hex_bytes_conversion
+
+import  ./test_private_public_key_consistency,
         ./test_key_and_signature_datastructures

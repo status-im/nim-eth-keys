@@ -9,7 +9,7 @@ srcDir        = "src"
 
 requires "nim >= 0.18.0", "keccak_tiny >= 0.1.0", "ttmath >= 0.1.0", "nimSHA2", "secp256k1"
 
-proc test(name: string, lang: string = "cpp") =
+proc test(name: string, lang: string = "c") =
   if not dirExists "build":
     mkDir "build"
   if not dirExists "nimcache":
@@ -19,9 +19,12 @@ proc test(name: string, lang: string = "cpp") =
   switch("out", ("./build/" & name))
   setCommand lang, "tests/" & name & ".nim"
 
-task test, "Run all tests - libsecp256k1 backend":
+task test, "Run all tests - C & libsecp256k1 backend":
   test "all_tests"
+
+task test_cpp, "Run all tests - C++ & libsecp256k1 backend":
+  test "all_tests", "cpp"
 
 task test_backend_native, "Run all tests - pure Nim backend":
   switch("define", "backend_native")
-  test "all_tests"
+  test "all_tests", "cpp"

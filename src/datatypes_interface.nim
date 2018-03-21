@@ -13,7 +13,7 @@
 # Note: for now only a native pure Nim backend is supported
 # In the future alternative, proven crypto backend will be added like libsecpk1
 
-import  ./datatypes
+import  ./datatypes, ./private/conversion_bytes
 
 import keccak_tiny
 
@@ -31,8 +31,8 @@ else:
 # Initialization
 
 proc initPrivateKey*(hexString: string): PrivateKey {.noInit.} =
-  hexToByteArrayBE(hexString, result.raw_key)
-  result.public_key = private_key_to_public_key(result)
+  hexToByteArrayBE(hexString, result.Fraw_key)
+  result.Fpublic_key = private_key_to_public_key(result)
 
 proc initPublicKey*(hexString: string): PublicKey {.noInit.} =
   var b: array[65, byte]
@@ -68,4 +68,4 @@ proc sign_msg*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.} =
   ecdsa_sign(key, message_hash)
 
 proc `$`*(key: PrivateKey): string {.inline.} =
-  key.raw_key.toHex()
+  key.Fraw_key.toHex()
