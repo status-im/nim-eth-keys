@@ -48,6 +48,25 @@ proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
   if not success:
     raise newException(ValueError, "Private key is invalid")
 
+proc serialize*(s: Signature, output: var openarray[byte], fromIdx: int = 0) =
+  ## Serialize an ECDSA signature in compact format, 65 bytes long
+  ## (64 bytes + recovery id). The output is written starting from `fromIdx`.
+  assert(output.len - fromIdx >= 65)
+  var v: cint
+  discard secp256k1_ecdsa_recoverable_signature_serialize_compact(ctx,
+    cast[ptr cuchar](addr output[fromIdx]), addr v, s.asPtrRecoverableSignature)
+  output[fromIdx + 64] = byte(v)
+
+proc parseSignature*(data: openarray[byte], fromIdx: int = 0): Signature =
+  ## Parse a compact ECDSA signature. Bytes [fromIdx .. fromIdx + 63] of `data`
+  ## should contain the signature, byte [fromIdx + 64] should contain the recovery id.
+  assert(data.len - fromIdx >= 65)
+  if secp256k1_ecdsa_recoverable_signature_parse_compact(ctx,
+      result.asPtrRecoverableSignature,
+      cast[ptr cuchar](unsafeAddr data[fromIdx]),
+      cint(data[fromIdx + 64])) != 1:
+    raise newException(ValueError, "Signature data is invalid")
+
 proc serialize*(key: PublicKey, output: var openarray[byte], addPrefix = false) =
   ## Exports a publicKey to `output` buffer so that it can be
   var
