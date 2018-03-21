@@ -23,6 +23,8 @@ when defined(backend_native):
 else:
   import ./backend_libsecp256k1/libsecp256k1
   export libsecp256k1.serialize
+  export libsecp256k1.`$`
+  export libsecp256k1.parsePublicKey
 
 # ################################
 # Initialization
@@ -63,3 +65,6 @@ proc sign_msg*(key: PrivateKey, message: string): Signature {.inline.} =
 
 proc sign_msg*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.} =
   ecdsa_sign(key, message_hash)
+
+proc `$`*(key: PrivateKey): string {.inline.} =
+  key.raw_key.toHex()
