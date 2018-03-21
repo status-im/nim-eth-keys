@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../datatypes
+import ../datatypes, ../private/conversion_bytes
 import secp256k1, keccak_tiny
 
 const SECP256K1_CONTEXT_ALL = SECP256K1_CONTEXT_VERIFY or SECP256K1_CONTEXT_SIGN
@@ -20,13 +20,13 @@ proc `=destroy`(ctx: ptr secp256k1_context) =
     ctx.secp256k1_context_destroy
 
 type
-  Serialized_PubKey = ByteArrayBE[65]
+  Serialized_PubKey = array[65, byte]
 
 proc asPtrPubKey(key: PublicKey): ptr secp256k1_pubkey =
-  cast[ptr secp256k1_pubkey](unsafeAddr key.raw_key)
+  cast[ptr secp256k1_pubkey](unsafeAddr key)
 
 proc asPtrCuchar(key: PrivateKey): ptr cuchar =
-  cast[ptr cuchar](unsafeAddr key.raw_key)
+  cast[ptr cuchar](unsafeAddr key)
 
 proc asPtrCuchar(key: Serialized_PubKey): ptr cuchar =
   cast[ptr cuchar](unsafeAddr key)

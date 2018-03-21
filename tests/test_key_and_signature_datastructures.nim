@@ -7,22 +7,12 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ../src/eth_keys,
+import  ../src/eth_keys, ../src/private/conversion_bytes,
         ./config
 
 import  unittest
 
 suite "Test key and signature data structure":
-  test "Signing from private key object":
-    for person in [alice, bob, eve]:
-      let
-        pk = initPrivateKey(person.privkey)
-        signature = pk.sign_msg(MSG)
-
-      check:
-        signature.v == person.raw_sig.v
-        signature.r == person.raw_sig.r.u256
-        signature.s == person.raw_sig.s.u256
 
   test "Signing from private key object (ported from official eth-keys)":
     for person in [alice, bob, eve]:
@@ -31,17 +21,6 @@ suite "Test key and signature data structure":
         signature = pk.sign_msg(MSG)
 
       check: verify_msg(pk.public_key, MSG, signature)
-
-  test "Hash signing from private key object":
-    for person in [alice, bob, eve]:
-      let
-        pk = initPrivateKey(person.privkey)
-        signature = pk.sign_msg(MSG)
-
-      check:
-        signature.v == person.raw_sig.v
-        signature.r == person.raw_sig.r.u256
-        signature.s == person.raw_sig.s.u256
 
   test "Hash signing from private key object (ported from official eth-keys)":
     for person in [alice, bob, eve]:

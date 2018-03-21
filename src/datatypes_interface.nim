@@ -13,7 +13,7 @@
 # Note: for now only a native pure Nim backend is supported
 # In the future alternative, proven crypto backend will be added like libsecpk1
 
-import  ./datatypes
+import  ./datatypes, ./private/conversion_bytes
 
 import keccak_tiny
 

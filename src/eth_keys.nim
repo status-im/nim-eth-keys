@@ -7,13 +7,12 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes,
-        ./datatypes_interface
+import ./datatypes
+export PublicKey, PrivateKey, Signature, public_key, `==`
 
+import ./datatypes_interface
+export datatypes_interface
 
-export  datatypes,
-        datatypes_interface
-
-
-import ttmath
-export ttmath
+when defined(backend_native):
+  import ttmath
+  export ttmath
