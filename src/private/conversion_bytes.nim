@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ttmath, strutils
+import strutils
 
 # Note on endianness:
 # - UInt256 uses host endianness
@@ -19,24 +19,7 @@ import ttmath, strutils
 #   https://www.reddit.com/r/crypto/comments/6287my/explanations_on_the_keccaksha3_paddingbyte/
 #   Note: Since Nim's Keccak-Tiny only accepts string as input, endianness does not matter.
 
-type ByteArrayBE*[N: static[int]] = array[N, byte]
-  ## A byte array that stores bytes in big-endian order
-
-proc readUint256BE*(ba: ByteArrayBE[32]): UInt256 {.noSideEffect, inline.}=
-  ## Convert a big-endian array of Bytes to an UInt256 (in native host endianness)
-  const N = 32
-  for i in 0 ..< N:
-    {.unroll: 4.}
-    result = result shl 8 or ba[i].u256
-
-proc toByteArrayBE*(num: UInt256): ByteArrayBE[32] {.noSideEffect, noInit, inline.}=
-  ## Convert an UInt256 (in native host endianness) to a big-endian byte array
-  const N = 32
-  for i in 0 ..< N:
-    {.unroll: 4.}
-    result[i] = byte getUInt(num shr uint((N-1-i) * 8))
-
-proc readHexChar(c: char): byte {.noSideEffect.}=
+proc readHexChar*(c: char): byte {.noSideEffect.}=
   ## Converts an hex char to a byte
   case c
   of '0'..'9': result = byte(ord(c) - ord('0'))
@@ -45,7 +28,7 @@ proc readHexChar(c: char): byte {.noSideEffect.}=
   else:
     raise newException(ValueError, $c & "is not a hexademical character")
 
-proc skip0xPrefix(hexStr: string): int {.inline.} =
+proc skip0xPrefix*(hexStr: string): int {.inline.} =
   ## Returns the index of the first meaningful char in `hexStr` by skipping
   ## "0x" prefix
   if hexStr[0] == '0' and hexStr[1] in {'x', 'X'}:
@@ -68,7 +51,7 @@ proc hexToByteArrayBE*(hexStr: string, output: var openArray[byte]) {.inline.} =
   ## Read a hex string and store it in a Byte Array `output` in Big-Endian order
   hexToByteArrayBE(hexStr, output, 0, output.high)
 
-proc hexToByteArrayBE*[N: static[int]](hexStr: string): ByteArrayBE[N] {.noSideEffect, noInit, inline.}=
+proc hexToByteArrayBE*[N: static[int]](hexStr: string): array[N, byte] {.noSideEffect, noInit, inline.}=
   ## Read an hex string and store it in a Byte Array in Big-Endian order
   hexToByteArrayBE(hexStr, result)
 
@@ -82,33 +65,6 @@ proc hexToSeqByteBE*(hexStr: string): seq[byte] {.noSideEffect.}=
   while i < N:
     result[i] = hexStr[2*i].readHexChar shl 4 or hexStr[2*i+1].readHexChar
     inc(i)
-
-proc hexToUInt256*(hexStr: string): UInt256 {.noSideEffect.}=
-  ## Read an hex string and store it in a UInt256
-  const N = 32
-
-  var i = skip0xPrefix(hexStr)
-
-  assert hexStr.len - i == 2*N
-
-  while i < 2*N:
-    result = result shl 4 or hexStr[i].readHexChar.uint.u256
-    inc(i)
-
-proc toHex*(n: UInt256): string {.noSideEffect.}=
-  ## Convert uint256 to its hex representation
-  ## Output is in lowercase
-
-  var rem = n # reminder to encode
-
-  const
-    N = 32 # nb of bytes in n
-    hexChars = "0123456789abcdef"
-
-  result = newString(2*N)
-  for i in countdown(2*N - 1, 0):
-    result[i] = hexChars[(rem and 0xF.u256).getUInt.int]
-    rem = rem shr 4
 
 proc toHexAux(ba: openarray[byte]): string {.noSideEffect.} =
   ## Convert a byte-array to its hex representation
@@ -132,7 +88,7 @@ proc toHex*(ba: openarray[byte]): string {.noSideEffect, inline.} =
   ##     - It is resistant against timing attack
   toHexAux(ba)
 
-proc toHex*(ba: ByteArrayBE): string {.noSideEffect, inline.} =
+proc toHex*[N: static[int]](ba: array[N, byte]): string {.noSideEffect, inline.} =
   ## Convert a byte-array to its hex representation
   ## Output is in lowercase
   ##
