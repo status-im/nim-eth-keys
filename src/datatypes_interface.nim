@@ -23,6 +23,7 @@ when defined(backend_native):
 else:
   import ./backend_libsecp256k1/libsecp256k1
   export libsecp256k1.serialize
+  export libsecp256k1.parseSignature
   export libsecp256k1.`$`
   export libsecp256k1.parsePublicKey
 
