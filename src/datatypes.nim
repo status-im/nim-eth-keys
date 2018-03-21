@@ -19,8 +19,17 @@ type
     Fraw_key*: array[32, byte]
     Fpublic_key*: PublicKey
 
+
+type
+  Scalar256 = array[32, byte]
+    # Secp256k1 makes the signature an opaque "implementation dependent".
+    #
+    # Scalar256 is opaque/distinct too as in practice, they are uint256
+    # and by default we don't load any.
+    # See implementation details in datatypes.md.
+
   Signature* {.packed.}= object
-    Fr*: array[32, byte]
-    Fs*: array[32, byte]
+    Fr*: Scalar256
+    Fs*: Scalar256
     Fv*: range[0.byte .. 1.byte] # This should be 27..28 as per Ethereum but it's 0..1 in eth-keys ...
 
