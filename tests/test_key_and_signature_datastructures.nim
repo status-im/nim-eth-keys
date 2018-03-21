@@ -19,9 +19,10 @@ suite "Test key and signature data structure":
         pk = initPrivateKey(person.privkey)
         signature = pk.sign_msg(MSG)
 
-      check: signature.v == person.raw_sig.v
-      check: signature.r == person.raw_sig.r.u256
-      check: signature.s == person.raw_sig.s.u256
+      check:
+        signature.v == person.raw_sig.v
+        signature.r == person.raw_sig.r.u256
+        signature.s == person.raw_sig.s.u256
 
   test "Signing from private key object (ported from official eth-keys)":
     for person in [alice, bob, eve]:
@@ -32,15 +33,15 @@ suite "Test key and signature data structure":
       check: verify_msg(pk.public_key, MSG, signature)
 
   test "Hash signing from private key object":
-
     for person in [alice, bob, eve]:
       let
         pk = initPrivateKey(person.privkey)
         signature = pk.sign_msg(MSG)
 
-      check: signature.v == person.raw_sig.v
-      check: signature.r == person.raw_sig.r.u256
-      check: signature.s == person.raw_sig.s.u256
+      check:
+        signature.v == person.raw_sig.v
+        signature.r == person.raw_sig.r.u256
+        signature.s == person.raw_sig.s.u256
 
   test "Hash signing from private key object (ported from official eth-keys)":
     for person in [alice, bob, eve]:
@@ -69,3 +70,18 @@ suite "Test key and signature data structure":
         recovered_pubkey = recover_pubkey_from_msg(MSGHASH, signature)
 
       check: pk.public_key == recovered_pubkey
+
+  test "Signature serialization and deserialization":
+    for person in [alice, bob, eve]:
+      let
+        pk = initPrivateKey(person.privkey)
+        signature = pk.sign_msg(MSG)
+        deserializedSignature = parseSignature(hexToSeqByteBE(person.serialized_sig))
+
+      var serialized_sig: array[65, byte]
+      signature.serialize(serialized_sig)
+
+      check:
+        signature == deserializedSignature
+        serialized_sig.toHex() == person.serialized_sig
+        $signature == person.serialized_sig
