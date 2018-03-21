@@ -14,41 +14,13 @@ import  unittest
 
 suite "Test key and signature data structure":
 
-  # TODO: For now due to needing hex <-> uint256 conversion
-  # Testing r, s, v direct access is disabled
-  #
-  # test "Signing from private key object":
-  #   for person in [alice, bob, eve]:
-  #     let
-  #       pk = initPrivateKey(person.privkey)
-  #       signature = pk.sign_msg(MSG)
-
-  #     check:
-  #       signature.Fv == person.raw_sig.v
-  #       signature.Fr == hexToByteArrayBE[32](person.raw_sig.r)
-  #       signature.Fs == hexToByteArrayBE[32](person.raw_sig.s)
-
   test "Signing from private key object (ported from official eth-keys)":
     for person in [alice, bob, eve]:
       let
         pk = initPrivateKey(person.privkey)
         signature = pk.sign_msg(MSG)
 
-      check: verify_msg(pk.Fpublic_key, MSG, signature)
-
-  # TODO: For now due to needing hex <-> uint256 conversion
-  # Testing r, s, v direct access is disabled
-  #
-  # test "Hash signing from private key object":
-  #   for person in [alice, bob, eve]:
-  #     let
-  #       pk = initPrivateKey(person.privkey)
-  #       signature = pk.sign_msg(MSG)
-
-  #     check:
-  #       signature.Fv == person.raw_sig.v
-  #       signature.Fr == hexToByteArrayBE[32](person.raw_sig.r)
-  #       signature.Fs == hexToByteArrayBE[32](person.raw_sig.s)
+      check: verify_msg(pk.public_key, MSG, signature)
 
   test "Hash signing from private key object (ported from official eth-keys)":
     for person in [alice, bob, eve]:
@@ -56,7 +28,7 @@ suite "Test key and signature data structure":
         pk = initPrivateKey(person.privkey)
         signature = pk.sign_msg(MSGHASH)
 
-      check: verify_msg(pk.Fpublic_key, MSGHASH, signature)
+      check: verify_msg(pk.public_key, MSGHASH, signature)
 
   test "Recover public key from message":
     for person in [alice, bob, eve]:
@@ -66,7 +38,7 @@ suite "Test key and signature data structure":
 
         recovered_pubkey = recover_pubkey_from_msg(MSG, signature)
 
-      check: pk.Fpublic_key == recovered_pubkey
+      check: pk.public_key == recovered_pubkey
 
   test "Recover public key from message hash":
     for person in [alice, bob, eve]:
@@ -76,7 +48,7 @@ suite "Test key and signature data structure":
 
         recovered_pubkey = recover_pubkey_from_msg(MSGHASH, signature)
 
-      check: pk.Fpublic_key == recovered_pubkey
+      check: pk.public_key == recovered_pubkey
 
   test "Signature serialization and deserialization":
     for person in [alice, bob, eve]:

@@ -8,7 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import ./datatypes
-export PublicKey, PrivateKey, Signature
+export PublicKey, PrivateKey, Signature, public_key, `==`
 
 import ./datatypes_interface
 export datatypes_interface

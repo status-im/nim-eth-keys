@@ -17,6 +17,6 @@ suite "Testing private -> public key conversion":
     for person in [alice, bob, eve]:
       let privkey = initPrivateKey(person.privkey)
 
-      let computed_pubkey = $privkey.Fpublic_key
+      let computed_pubkey = $privkey.public_key
 
       check: computed_pubkey == person.pubkey

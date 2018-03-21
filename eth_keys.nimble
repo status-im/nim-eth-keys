@@ -26,11 +26,6 @@ task test_cpp, "Run all tests - C++ only & libsecp256k1 backend":
   test "all_tests", "cpp"
 
 task test, "Run all tests - C and C++ & libsecp256k1 backend":
-  ## TODO: This only runs the C++ tests ...
-  # block:
-  #   test "all_tests"
-  # block:
-  #   test "all_tests", "cpp"
   exec "nimble test_c"
   exec "rm ./nimcache/*"
   exec "nimble test_cpp"

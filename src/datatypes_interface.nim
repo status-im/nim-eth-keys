@@ -31,8 +31,8 @@ else:
 # Initialization
 
 proc initPrivateKey*(hexString: string): PrivateKey {.noInit.} =
-  hexToByteArrayBE(hexString, result.Fraw_key)
-  result.Fpublic_key = private_key_to_public_key(result)
+  hexToByteArrayBE(hexString, result.raw_key)
+  result.public_key = private_key_to_public_key(result)
 
 proc initPublicKey*(hexString: string): PublicKey {.noInit.} =
   var b: array[65, byte]
@@ -68,4 +68,4 @@ proc sign_msg*(key: PrivateKey, message_hash: Hash[256]): Signature {.inline.} =
   ecdsa_sign(key, message_hash)
 
 proc `$`*(key: PrivateKey): string {.inline.} =
-  key.Fraw_key.toHex()
+  key.raw_key.toHex()
