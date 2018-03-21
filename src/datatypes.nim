@@ -8,42 +8,19 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import ./private/conversion_bytes
-export toHex, hexToByteArrayBE, hexToSeqByteBE
 
-
-# Note: Fields are intentionally kept private
+# Note: Fields F should be private, it is intentionally ugly to directly access them
+# See private field access issue: https://github.com/nim-lang/Nim/issues/7390
 type
   PublicKey* = object
-    Fraw_key: array[64, byte]
+    Fraw_key*: array[64, byte]
 
   PrivateKey* = object
-    Fraw_key: array[32, byte]
-    Fpublic_key: PublicKey
+    Fraw_key*: array[32, byte]
+    Fpublic_key*: PublicKey
 
   Signature* {.packed.}= object
-    Fr: array[32, byte]
-    Fs: array[32, byte]
-    Fv: range[0.byte .. 1.byte]
+    Fr*: array[32, byte]
+    Fs*: array[32, byte]
+    Fv*: range[0.byte .. 1.byte] # This should be 27..28 as per Ethereum but it's 0..1 in eth-keys ...
 
-
-# "Public" accessors, only exposed to internal modules
-
-template genAccessors(name: untyped, fieldType, objType: typedesc): untyped =
-  # Access
-  proc name*(obj: objType): fieldType {.noSideEffect, inline, noInit.} =
-    obj.`F name`
-
-  # Assignement
-  proc `name=`*(obj: var objType, value: fieldType): fieldType {.noSideEffect, inline.} =
-    obj.`F name` = value
-
-  # Mutable
-  proc `name`*(obj: var objType): var fieldType {.noSideEffect, inline.} =
-    obj.`F name`
-
-genAccessors(raw_key, array[64, byte], PublicKey)
-genAccessors(raw_key, array[32, byte], PrivateKey)
-genAccessors(public_key, PublicKey, PrivateKey)
-genAccessors(s, array[32, byte], Signature)
-genAccessors(r, array[32, byte], Signature)
-genAccessors(v, range[0.byte .. 1.byte], Signature)
