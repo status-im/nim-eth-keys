@@ -10,8 +10,8 @@
 import  ../datatypes, ../private/[array_utils, lowlevel_types],
         ./jacobian, ./mod_arithmetic, ./hmac, ./constants
 
-import  ttmath, keccak_tiny, strutils,
-        nimSHA2 # TODO: For SHA-256, use OpenSSL instead? (see https://rosettacode.org/wiki/SHA-256#Nim)
+import  ttmath, nimcrypto, strutils,
+        nimSHA2 # TODO: For SHA-256, use nimcrypto instead? (see https://github.com/cheatfate/nimcrypto/blob/master/tests/testhmac.nim)
 
 
 proc decode_public_key(pubKey: ByteArrayBE[64]
@@ -46,7 +46,7 @@ proc private_key_to_public_key*(key: PrivateKey): PublicKey {.noInit.}=
 
   result.raw_key = encode_raw_public_key fast_multiply(SECPK1_G, keyInt)
 
-proc ecdsa_raw_verify*(msg_hash: Hash[256], vrs: Signature, key: PublicKey): bool =
+proc ecdsa_raw_verify*(msg_hash: MDigest[256], vrs: Signature, key: PublicKey): bool =
   let
     w = invmod(vrs.s, SECPK1_N)
     z = readUint256BE cast[ByteArrayBE[32]](msg_hash)
@@ -59,7 +59,7 @@ proc ecdsa_raw_verify*(msg_hash: Hash[256], vrs: Signature, key: PublicKey): boo
           )
   result = vrs.r == xy[0] and vrs.r.isOdd and vrs.s.isOdd
 
-proc deterministic_generate_k(msg_hash: Hash[256], key: PrivateKey): UInt256 =
+proc deterministic_generate_k(msg_hash: MDigest[256], key: PrivateKey): UInt256 =
   const
     v_0 = initArray[32, byte](0x01'u8)
     k_0 = initArray[32, byte](0x00'u8)
@@ -75,7 +75,7 @@ proc deterministic_generate_k(msg_hash: Hash[256], key: PrivateKey): UInt256 =
 
   result = readUint256BE cast[ByteArrayBE[32]](kb)
 
-proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.} =
+proc ecdsa_sign*(key: PrivateKey, msg_hash: MDigest[256]): Signature {.noInit.} =
   modulo(SECPK1_N):
     let
       z = readUint256BE cast[ByteArrayBE[32]](msg_hash)
@@ -92,7 +92,7 @@ proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.} =
               else: SECPK1_N - s_raw
   result.r = ry[0]
 
-proc ecdsa_recover*(msg_hash: Hash[256], vrs: Signature): PublicKey {.noInit.} =
+proc ecdsa_recover*(msg_hash: MDigest[256], vrs: Signature): PublicKey {.noInit.} =
   modulo(SECPK1_P):
     let
       x = vrs.r

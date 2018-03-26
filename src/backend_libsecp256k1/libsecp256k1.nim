@@ -8,7 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import ../datatypes, ../private/conversion_bytes
-import secp256k1, keccak_tiny
+import secp256k1, nimcrypto
 
 const SECP256K1_CONTEXT_ALL = SECP256K1_CONTEXT_VERIFY or SECP256K1_CONTEXT_SIGN
 
@@ -31,7 +31,7 @@ proc asPtrCuchar(key: PrivateKey): ptr cuchar =
 proc asPtrCuchar(key: Serialized_PubKey): ptr cuchar =
   cast[ptr cuchar](unsafeAddr key)
 
-proc asPtrCuchar(msg_hash: Hash[256]): ptr cuchar =
+proc asPtrCuchar(msg_hash: MDigest[256]): ptr cuchar =
   cast[ptr cuchar](unsafeAddr msg_hash)
 
 proc asPtrRecoverableSignature(sig: Signature): ptr secp256k1_ecdsa_recoverable_signature =
@@ -120,7 +120,7 @@ proc parsePublicKey*(data: openarray[byte]): PublicKey =
   else: # TODO: Support other lengths
     raise newException(Exception, "Wrong public key length")
 
-proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.}=
+proc ecdsa_sign*(key: PrivateKey, msg_hash: MDigest[256]): Signature {.noInit.}=
   ## Sign a message with a recoverable signature
   ## Input:
   ##   - A message encoded with keccak_256
@@ -139,7 +139,7 @@ proc ecdsa_sign*(key: PrivateKey, msg_hash: Hash[256]): Signature {.noInit.}=
   if not success:
     raise newException(ValueError, "The nonce generation function failed, or the private key was invalid.")
 
-proc ecdsa_recover*(msg_hash: Hash[256], sig: Signature): PublicKey =
+proc ecdsa_recover*(msg_hash: MDigest[256], sig: Signature): PublicKey =
   ## Recover the Public Key from the message hash and the signature
 
   let success: bool = bool secp256k1_ecdsa_recover(

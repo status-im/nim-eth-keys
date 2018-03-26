@@ -29,7 +29,7 @@
 #     assert crypto.ecdsa_recover(msghash, sig) == pubkey
 # """
 
-import keccak_tiny
+import nimcrypto
 
 type
   testKeySig* = object
@@ -40,7 +40,7 @@ type
 
 let
   MSG* = "message"
-  MSGHASH* = keccak256(MSG)
+  MSGHASH* = keccak256.digest(MSG)
 
 # Conversion done through https://www.mobilefish.com/services/big_number/big_number.php
 
