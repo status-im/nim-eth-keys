@@ -30,6 +30,9 @@ else:
 # ################################
 # Initialization
 
+proc initPrivateKey*(data: array[32, byte]): PrivateKey {.noInit, inline.} =
+  result.raw_key = data
+
 proc initPrivateKey*(hexString: string): PrivateKey {.noInit.} =
   hexToByteArrayBE(hexString, result.raw_key)
 
