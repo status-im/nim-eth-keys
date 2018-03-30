@@ -32,7 +32,6 @@ else:
 
 proc initPrivateKey*(hexString: string): PrivateKey {.noInit.} =
   hexToByteArrayBE(hexString, result.raw_key)
-  result.public_key = private_key_to_public_key(result)
 
 proc initPublicKey*(hexString: string): PublicKey {.noInit.} =
   var b: array[65, byte]
@@ -59,6 +58,9 @@ proc verify_msg*(key: PublicKey, message: string, sig: Signature): bool {.inline
 
 # # ################################
 # # Private key interface
+
+proc public_key*(key: PrivateKey): PublicKey {.inline.} =
+  private_key_to_public_key(key)
 
 proc sign_msg*(key: PrivateKey, message: openarray[byte]): Signature {.inline.} =
   let message_hash = keccak256.digest(message)
