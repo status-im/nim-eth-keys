@@ -17,7 +17,6 @@ type
 
   PrivateKey* = object
     Fraw_key: array[32, byte]
-    Fpublic_key: PublicKey   # This is exported publicly through public_key
 
 type
   Scalar256 = distinct array[32, byte]
@@ -53,7 +52,6 @@ template genAccessors(name: untyped, fieldType, objType: typedesc): untyped =
 
 genAccessors(raw_key, array[64, byte], PublicKey)
 genAccessors(raw_key, array[32, byte], PrivateKey)
-genAccessors(public_key, PublicKey, PrivateKey)
 
 
 ## If we hide the fields we need to provide a custom `==` proc
