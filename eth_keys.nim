@@ -25,6 +25,10 @@ when not defined(native):
     ## Return current error message.
     result = libsecp256k1ErrorMsg()
 
+  proc shutdown*() {.inline.} =
+    ## Clean all backend resources
+    shutdownLibsecp256k1()
+
 proc signMessage*(seckey: PrivateKey,
                   data: openarray[byte]): Signature {.inline.} =
   ## Sign message of arbitrary length `data` using private key `seckey`.
@@ -81,12 +85,12 @@ proc recoverKeyFromSignature*(signature: Signature,
     raise newException(EthKeysException, ekErrorMsg())
 
 proc toAddress*(pubkey: PublicKey): string =
-  ## Convert public key to address.
+  ## Convert public key to hexadecimal string address.
   var hash = keccak256.digest(pubkey.getRaw().data)
   result = "0x" & toHex(toOpenArray(hash.data, 12, len(hash.data) - 1), true)
 
 proc toChecksumAddress*(pubkey: PublicKey): string =
-  ## Convert public key to address.
+  ## Convert public key to checksumable mixed-case address (EIP-55).
   result = "0x"
   var hash1 = keccak256.digest(pubkey.getRaw().data)
   var hhash1 = toHex(toOpenArray(hash1.data, 12, len(hash1.data) - 1), true)
@@ -103,7 +107,7 @@ proc toChecksumAddress*(pubkey: PublicKey): string =
         result = result & ch
 
 proc validateChecksumAddress*(a: string): bool =
-  ## Validate checksum address (EIP-55).
+  ## Validate checksumable mixed-case address (EIP-55).
   var address = ""
   var check = "0x"
   if len(a) != 42:
