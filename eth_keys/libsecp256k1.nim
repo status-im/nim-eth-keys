@@ -132,25 +132,10 @@ proc getPublicKey*(seckey: PrivateKey): PublicKey =
                                 cast[ptr cuchar](unsafeAddr seckey)) != 1:
     raiseSecp256k1Error()
 
-proc safeGetPublicKey*(seckey: PrivateKey,
-                       pubkey: var PublicKey): EthKeysStatus =
-  ## Return public key associated with specified privat key `seckey`.
-  let ctx = getSecpContext()
-  if secp256k1_ec_pubkey_create(ctx, addr pubkey,
-                                cast[ptr cuchar](unsafeAddr seckey)) != 1:
-    result = EthKeysStatus.Error
-  else:
-    result = EthKeysStatus.Success
-
 proc newKeyPair*(): KeyPair =
   ## Generates new private and public key.
   result.seckey = newPrivateKey()
   result.pubkey = result.seckey.getPublicKey()
-
-proc safeNewKeyPair*(keypair: var KeyPair): EthKeysStatus =
-  ## Generates new private and public key.
-  keypair.seckey = newPrivateKey()
-  result = keypair.seckey.safeGetPublicKey(keypair.pubkey)
 
 proc initPrivateKey*(hexstr: string): PrivateKey =
   ## Create new private key from hexadecimal string representation.
