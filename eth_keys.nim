@@ -139,3 +139,15 @@ proc toCanonicalAddress*(pubkey: PublicKey): array[20, byte] =
   ## Convert public key to canonical address.
   var hash = keccak256.digest(pubkey.getRaw())
   copyMem(addr result[0], addr hash.data[12], 20)
+
+proc `$`*(pubkey: PublicKey): string =
+  ## Convert public key to hexadecimal string representation.
+  result = "0x" & toHex(pubkey.getRaw(), true)
+
+proc `$`*(sig: Signature): string =
+  ## Convert signature to hexadecimal string representation.
+  result = "0x" & toHex(sig.getRaw(), true)
+
+proc `$`*(seckey: PrivateKey): string =
+  ## Convert private key to hexadecimal string representation
+  result = "0x" & toHex(seckey.data, true)

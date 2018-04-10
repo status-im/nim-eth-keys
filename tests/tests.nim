@@ -23,7 +23,52 @@ const
   message = "message"
   address = "dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
 
+  alice = [
+    "9c0257114eb9399a2985f8e75dad7600c5d89fe3824ffa99ec1c3eb8bf3b0501",
+    """5eed5fa3a67696c334762bb4823e585e2ee579aba3558d9955296d6c04541b42
+       6078dbd48d74af1fd0c72aa1a05147cf17be6b60bdbed6ba19b08ec28445b0ca""",
+    """b20e2ea5d3cbaa83c1e0372f110cf12535648613b479b64c1a8c1a20c5021f38
+       0434d07ec5795e3f789794351658e80b7faf47a46328f41e019d7b853745cdfd01"""
+  ]
+  bob = [
+    "38e47a7b719dce63662aeaf43440326f551b8a7ee198cee35cb5d517f2d296a2",
+    """347746ccb908e583927285fa4bd202f08e2f82f09c920233d89c47c79e48f937
+       d049130e3d1c14cf7b21afefc057f71da73dec8e8ff74ff47dc6a574ccd5d570""",
+    """5c48ea4f0f2257fa23bd25e6fcb0b75bbe2ff9bbda0167118dab2bb6e31ba76e
+       691dbdaf2a231fc9958cd8edd99507121f8184042e075cf10f98ba88abff1f3601"""
+  ]
+  eve = [
+    "876be0999ed9b7fc26f1b270903ef7b0c35291f89407903270fea611c85f515c",
+    """c06641f0d04f64dba13eac9e52999f2d10a1ff0ca68975716b6583dee0318d91
+       e7c2aed363ed22edeba2215b03f6237184833fd7d4ad65f75c2c1d5ea0abecc0""",
+    """babeefc5082d3ca2e0bc80532ab38f9cfb196fb9977401b2f6a98061f15ed603
+       603d0af084bf906b2cdf6cdde8b2e1c3e51a41af5e9adec7f3643b3f1aa2aadf00"""
+  ]
+
 suite "ECC/ECDSA/ECDHE tests suite":
+  test "Known private to known public keys (test data from Ethereum eth-keys)":
+    for person in [alice, bob, eve]:
+      let privkey = initPrivateKey(person[0])
+      var pubkeyHex = $privkey.getPublicKey()
+      check:
+        pubkeyHex == "0x" & stripSpaces(person[1])
+
+  test "Recover public key from message":
+    for person in [alice, bob, eve]:
+      let privkey = initPrivateKey(person[0])
+      let signature = privkey.signMessage(message)
+      let recoveredKey = signature.recoverKeyFromSignature(message)
+      check:
+        $privkey.getPublicKey() == $recoveredKey
+
+  test "Signature serialization and deserialization":
+    for person in [alice, bob, eve]:
+      let privkey = initPrivateKey(person[0])
+      let signature = privkey.signMessage(message)
+      let expectSignature = initSignature(person[2])
+      check:
+        $signature == $expectSignature
+
   test "test_signing_from_private_key_obj":
     var s = initPrivateKey(pkbytes)
     var signature = s.signMessage(message)

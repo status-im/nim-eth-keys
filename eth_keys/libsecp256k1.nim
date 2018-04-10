@@ -150,7 +150,7 @@ proc recoverPublicKey*(data: openarray[byte],
   ## Unserialize public key from `data`.
   let ctx = getSecpContext()
   let length = len(data)
-  if length < sizeof(PublicKey):
+  if length < RawPublicKeySize:
     setErrorMsg(InvalidPublicKey)
     return(EthKeysStatus.Error)
   var rawkey: array[RawPublicKeySize + 1, byte]
@@ -180,7 +180,7 @@ proc recoverSignature*(data: openarray[byte],
 proc initPublicKey*(hexstr: string): PublicKey =
   ## Create new public key from hexadecimal string representation.
   var o = fromHex(stripSpaces(hexstr))
-  if len(o) < KeyLength:
+  if len(o) < RawPublicKeySize:
     raise newException(EthKeysException, InvalidPublicKey)
   if recoverPublicKey(o, result) != EthKeysStatus.Success:
     raise newException(EthKeysException, InvalidPublicKey)
@@ -189,6 +189,17 @@ proc initPublicKey*(data: openarray[byte]): PublicKey =
   ## Create new public key from binary data blob.
   if recoverPublicKey(data, result) != EthKeysStatus.Success:
     raise newException(EthKeysException, InvalidPublicKey)
+
+proc initSignature*(hexstr: string): Signature =
+  ## Create new signature from hexadecimal string representation.
+  var o = fromHex(stripSpaces(hexstr))
+  if recoverSignature(o, result) != EthKeysStatus.Success:
+    raise newException(EthKeysException, libsecp256k1ErrorMsg())
+
+proc initSignature*(data: openarray[byte]): Signature =
+  ## Create new signature from 'data'.
+  if recoverSignature(data, result) != EthKeysStatus.Success:
+    raise newException(EthKeysException, libsecp256k1ErrorMsg())
 
 proc ecdhAgree*(seckey: PrivateKey, pubkey: PublicKey,
                 secret: var SharedSecret): EthKeysStatus =
