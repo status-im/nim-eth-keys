@@ -165,9 +165,9 @@ suite "ECC/ECDSA/ECDHE tests suite":
     var s = initPrivateKey(keccak256.digest("sec").data)
     var m = keccak256.digest("msg").data
     check signRawMessage(m, s, sig) == Success
-    var sersig = sig.getRaw().data
+    var sersig = sig.getRaw()
     check recoverSignatureKey(sersig, m, key) == Success
-    var serkey = key.getRaw().data
+    var serkey = key.getRaw()
     check:
       compare(sersig, check1) == true
       compare(serkey, check2) == true
@@ -181,7 +181,7 @@ suite "ECC/ECDSA/ECDHE tests suite":
       var s = newPrivateKey()
       var key = s.getPublicKey()
       check signRawMessage(m, s, sig) == Success
-      var sersig = sig.getRaw().data
+      var sersig = sig.getRaw()
       check:
         recoverSignatureKey(sersig, m, rkey) == Success
         key == rkey
@@ -193,7 +193,7 @@ suite "ECC/ECDSA/ECDHE tests suite":
       var s = newPrivateKey()
       var key = s.getPublicKey()
       check:
-        recoverPublicKey(key.getRaw().data, rkey) == Success
+        recoverPublicKey(key.getRaw(), rkey) == Success
         key == rkey
 
   test "ECDHE/100 shared secrets":

@@ -86,13 +86,13 @@ proc recoverKeyFromSignature*(signature: Signature,
 
 proc toAddress*(pubkey: PublicKey): string =
   ## Convert public key to hexadecimal string address.
-  var hash = keccak256.digest(pubkey.getRaw().data)
+  var hash = keccak256.digest(pubkey.getRaw())
   result = "0x" & toHex(toOpenArray(hash.data, 12, len(hash.data) - 1), true)
 
 proc toChecksumAddress*(pubkey: PublicKey): string =
   ## Convert public key to checksumable mixed-case address (EIP-55).
   result = "0x"
-  var hash1 = keccak256.digest(pubkey.getRaw().data)
+  var hash1 = keccak256.digest(pubkey.getRaw())
   var hhash1 = toHex(toOpenArray(hash1.data, 12, len(hash1.data) - 1), true)
   var hash2 = keccak256.digest(hhash1)
   var hhash2 = toHex(hash2.data, true)
@@ -137,5 +137,5 @@ proc validateChecksumAddress*(a: string): bool =
 
 proc toCanonicalAddress*(pubkey: PublicKey): array[20, byte] =
   ## Convert public key to canonical address.
-  var hash = keccak256.digest(pubkey.getRaw().data)
+  var hash = keccak256.digest(pubkey.getRaw())
   copyMem(addr result[0], addr hash.data[12], 20)
