@@ -1,13 +1,14 @@
 packageName   = "eth_keys"
-version       = "0.0.1"
+version       = "0.0.2"
 author        = "Status Research & Development GmbH"
 description   = "A reimplementation in pure Nim of eth-keys, the common API for Ethereum key operations."
 license       = "Apache License 2.0 or MIT"
-srcDir        = "src"
+# srcDir        = "src"
+skipDirs      = @["src", "tests", "Nim"]
 
 ### Dependencies
 
-requires "nim >= 0.18.0", "nimcrypto", "ttmath >= 0.1.0", "nimSHA2", "secp256k1"
+requires "nim > 0.18.0", "nimcrypto", "secp256k1"
 
 proc test(name: string, lang: string = "c") =
   if not dirExists "build":
@@ -19,17 +20,17 @@ proc test(name: string, lang: string = "c") =
   switch("out", ("./build/" & name))
   setCommand lang, "tests/" & name & ".nim"
 
-task test_c, "Run all tests - C only & libsecp256k1 backend":
-  test "all_tests"
+task test, "Run all tests - C only & libsecp256k1 backend":
+  test "tests"
 
-task test_cpp, "Run all tests - C++ only & libsecp256k1 backend":
-  test "all_tests", "cpp"
+# task test_cpp, "Run all tests - C++ only & libsecp256k1 backend":
+#   test "all_tests", "cpp"
 
-task test, "Run all tests - C and C++ & libsecp256k1 backend":
-  exec "nimble test_c"
-  exec "rm ./nimcache/*"
-  exec "nimble test_cpp"
+# task test, "Run all tests - C and C++ & libsecp256k1 backend":
+#   exec "nimble test_c"
+#   exec "rm ./nimcache/*"
+#   exec "nimble test_cpp"
 
-task test_backend_native, "Run all tests - pure Nim backend":
-  switch("define", "backend_native")
-  test "all_tests", "cpp"
+# task test_backend_native, "Run all tests - pure Nim backend":
+#   switch("define", "backend_native")
+#   test "all_tests", "cpp"
