@@ -51,7 +51,7 @@ suite "ECC/ECDSA/ECDHE tests suite":
       let privkey = initPrivateKey(person[0])
       var pubkeyHex = $privkey.getPublicKey()
       check:
-        pubkeyHex == "0x" & stripSpaces(person[1])
+        pubkeyHex == stripSpaces(person[1])
 
   test "Recover public key from message":
     for person in [alice, bob, eve]:

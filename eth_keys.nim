@@ -142,12 +142,12 @@ proc toCanonicalAddress*(pubkey: PublicKey): array[20, byte] =
 
 proc `$`*(pubkey: PublicKey): string =
   ## Convert public key to hexadecimal string representation.
-  result = "0x" & toHex(pubkey.getRaw(), true)
+  result = toHex(pubkey.getRaw(), true)
 
 proc `$`*(sig: Signature): string =
   ## Convert signature to hexadecimal string representation.
-  result = "0x" & toHex(sig.getRaw(), true)
+  result = toHex(sig.getRaw(), true)
 
 proc `$`*(seckey: PrivateKey): string =
   ## Convert private key to hexadecimal string representation
-  result = "0x" & toHex(seckey.data, true)
+  result = toHex(seckey.data, true)
