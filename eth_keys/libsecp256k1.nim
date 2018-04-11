@@ -63,6 +63,7 @@ proc errorCallback(message: cstring, data: pointer) {.cdecl.} =
   ctx.error = $message
 
 proc shutdownLibsecp256k1(ekContext: EthKeysContext) =
+  # TODO: use destructor when finalizer are deprecated for destructors
   if not isNil(ekContext.context):
     secp256k1_context_destroy(ekContext.context)
 
