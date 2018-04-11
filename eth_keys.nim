@@ -25,10 +25,6 @@ when not defined(native):
     ## Return current error message.
     result = libsecp256k1ErrorMsg()
 
-  proc shutdown*() {.inline.} =
-    ## Clean all backend resources
-    shutdownLibsecp256k1()
-
 proc signMessage*(seckey: PrivateKey,
                   data: openarray[byte]): Signature {.inline.} =
   ## Sign message of arbitrary length `data` using private key `seckey`.
