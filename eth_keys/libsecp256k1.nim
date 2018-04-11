@@ -62,9 +62,14 @@ proc errorCallback(message: cstring, data: pointer) {.cdecl.} =
   let ctx = cast[EthKeysContext](data)
   ctx.error = $message
 
+proc shutdownLibsecp256k1(ekContext: EthKeysContext) =
+  # TODO: use destructor when finalizer are deprecated for destructors
+  if not isNil(ekContext.context):
+    secp256k1_context_destroy(ekContext.context)
+
 proc newEthKeysContext(): EthKeysContext =
   ## Create new `EthKeysContext`.
-  result = new EthKeysContext
+  new(result, shutdownLibsecp256k1)
   let flags = cuint(SECP256K1_CONTEXT_VERIFY or SECP256K1_CONTEXT_SIGN)
   result.context = secp256k1_context_create(flags)
   secp256k1_context_set_illegal_callback(result.context, illegalCallback,
@@ -313,8 +318,3 @@ proc signRawMessage*(data: openarray[byte], seckey: PrivateKey,
                                       nil, nil) != 1:
     return(EthKeysStatus.Error)
   return(EthKeysStatus.Success)
-
-proc shutdownLibsecp256k1() =
-  if not isNil(ekContext):
-    secp256k1_context_destroy(ekContext.context)
-    ekContext = nil
