@@ -18,7 +18,6 @@ const
   InvalidPublicKey = "Invalid public key!"
   InvalidSignature = "Invalid signature!"
   VerificationFailed = "Signature verification has been failed!"
-  EmptyMessageError = "Data/Message could not be empty!"
   MessageSizeError = "Size of message to sign must be KeyLength bytes!"
 
 type
@@ -266,8 +265,8 @@ proc recoverSignatureKey*(data: openarray[byte],
   ## recover public key to `pubkey` on success.
   let ctx = getSecpContext()
   let length = len(data)
-  if len(msg) == 0 or length == 0:
-    setErrorMsg(EmptyMessageError)
+  if len(msg) < KeyLength:
+    setErrorMsg(MessageSizeError)
     return(EthKeysStatus.Error)
   if length < RawSignatureSize:
     setErrorMsg(InvalidSignature)
@@ -290,8 +289,8 @@ proc recoverSignatureKey*(signature: Signature,
   ## Perform check of `signature` using original message `msg` and
   ## recover public key to `pubkey` on success.
   let ctx = getSecpContext()
-  if len(msg) == 0:
-    setErrorMsg(EmptyMessageError)
+  if len(msg) < KeyLength:
+    setErrorMsg(MessageSizeError)
     return(EthKeysStatus.Error)
   if secp256k1_ecdsa_recover(ctx, addr pubkey, unsafeAddr signature,
                              cast[ptr cuchar](msg)) != 1:
