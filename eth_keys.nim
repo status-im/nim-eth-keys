@@ -84,14 +84,15 @@ proc recoverKeyFromSignature*(signature: Signature,
   if recoverSignatureKey(signature, hash.data, result) != EthKeysStatus.Success:
     raise newException(EthKeysException, ekErrorMsg())
 
-proc toAddress*(pubkey: PublicKey): string =
+proc toAddress*(pubkey: PublicKey, with0x = true): string =
   ## Convert public key to hexadecimal string address.
   var hash = keccak256.digest(pubkey.getRaw())
-  result = "0x" & toHex(toOpenArray(hash.data, 12, len(hash.data) - 1), true)
+  result = if with0x: "0x" else: ""
+  result.add(toHex(toOpenArray(hash.data, 12, len(hash.data) - 1), true))
 
-proc toChecksumAddress*(pubkey: PublicKey): string =
+proc toChecksumAddress*(pubkey: PublicKey, with0x = true): string =
   ## Convert public key to checksumable mixed-case address (EIP-55).
-  result = "0x"
+  result = if with0x: "0x" else: ""
   var hash1 = keccak256.digest(pubkey.getRaw())
   var hhash1 = toHex(toOpenArray(hash1.data, 12, len(hash1.data) - 1), true)
   var hash2 = keccak256.digest(hhash1)
