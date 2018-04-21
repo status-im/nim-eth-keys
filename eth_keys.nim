@@ -80,27 +80,28 @@ proc recoverKeyFromSignature*(signature: Signature,
   if recoverSignatureKey(signature, hash.data, result) != EthKeysStatus.Success:
     raise newException(EthKeysException, ekErrorMsg())
 
-proc toAddress*(pubkey: PublicKey): string =
+proc toAddress*(pubkey: PublicKey, with0x = true): string =
   ## Convert public key to hexadecimal string address.
   var hash = keccak256.digest(pubkey.getRaw())
-  result = "0x" & toHex(toOpenArray(hash.data, 12, len(hash.data) - 1), true)
+  result = if with0x: "0x" else: ""
+  result.add(toHex(toOpenArray(hash.data, 12, len(hash.data) - 1), true))
 
-proc toChecksumAddress*(pubkey: PublicKey): string =
+proc toChecksumAddress*(pubkey: PublicKey, with0x = true): string =
   ## Convert public key to checksumable mixed-case address (EIP-55).
-  result = "0x"
+  result = if with0x: "0x" else: ""
   var hash1 = keccak256.digest(pubkey.getRaw())
   var hhash1 = toHex(toOpenArray(hash1.data, 12, len(hash1.data) - 1), true)
   var hash2 = keccak256.digest(hhash1)
   var hhash2 = toHex(hash2.data, true)
   for i in 0..<len(hhash1):
     if hhash2[i] >= '0' and hhash2[i] <= '7':
-      result = result & hhash1[i]
+      result.add(hhash1[i])
     else:
       if hhash1[i] >= '0' and hhash1[i] <= '9':
-        result = result & hhash1[i]
+        result.add(hhash1[i])
       else:
         let ch = chr(ord(hhash1[i]) - ord('a') + ord('A'))
-        result = result & ch
+        result.add(ch)
 
 proc validateChecksumAddress*(a: string): bool =
   ## Validate checksumable mixed-case address (EIP-55).
@@ -122,13 +123,13 @@ proc validateChecksumAddress*(a: string): bool =
   var hexhash = toHex(hash.data, true)
   for i in 0..<len(address):
     if hexhash[i] >= '0' and hexhash[i] <= '7':
-      check = check & address[i]
+      check.add(address[i])
     else:
       if address[i] >= '0' and address[i] <= '9':
-        check = check & address[i]
+        check.add(address[i])
       else:
         let ch = chr(ord(address[i]) - ord('a') + ord('A'))
-        check = check & ch
+        check.add(ch)
   result = (check == a)
 
 proc toCanonicalAddress*(pubkey: PublicKey): array[20, byte] =
