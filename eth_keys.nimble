@@ -4,7 +4,7 @@ author        = "Status Research & Development GmbH"
 description   = "A reimplementation in pure Nim of eth-keys, the common API for Ethereum key operations."
 license       = "Apache License 2.0 or MIT"
 # srcDir        = "src"
-skipDirs      = @["src", "tests", "Nim"]
+skipDirs      = @["src", "tests", "Nim", "old_api"]
 
 ### Dependencies
 
