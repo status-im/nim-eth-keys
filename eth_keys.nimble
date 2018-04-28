@@ -8,7 +8,9 @@ skipDirs      = @["src", "tests", "Nim", "old_api"]
 
 ### Dependencies
 
-requires "nim > 0.18.0", "nimcrypto", "secp256k1"
+requires "nim > 0.18.0",
+         "https://github.com/cheatfate/nimcrypto#master",
+         "secp256k1"
 
 proc test(name: string, lang: string = "c") =
   if not dirExists "build":
