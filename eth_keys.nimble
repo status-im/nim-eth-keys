@@ -9,7 +9,7 @@ skipDirs      = @["src", "tests", "Nim", "old_api"]
 ### Dependencies
 
 requires "nim > 0.18.0",
-         "https://github.com/cheatfate/nimcrypto#master",
+         "https://github.com/cheatfate/nimcrypto",
          "secp256k1"
 
 proc test(name: string, lang: string = "c") =
