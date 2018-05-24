@@ -5,10 +5,9 @@
 ![Stability: experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
 [![Build Status](https://travis-ci.org/status-im/nim-eth-keys.svg?branch=master)](https://travis-ci.org/status-im/nim-eth-keys)
 
-A reimplementation in pure Nim of [eth-keys](https://github.com/ethereum/eth-keys), the common API for Ethereum key operations.
+This library is a Nim re-implementation of [eth-keys](https://github.com/ethereum/eth-keys): the common API for working with Ethereum's public and private keys, signatures, and addresses.
 
-By default, Nim eth-keys uses Bitcoin's [libsecp256k1](https://github.com/bitcoin-core/secp256k1) as a backend.
-Make sure libsecp256k1 is available on your system.
+By default, Nim eth-keys uses Bitcoin's [libsecp256k1](https://github.com/bitcoin-core/secp256k1) as a backend. Make sure libsecp256k1 is available on your system.
 
 An experimental pure Nim backend (Warning ⚠: do not use in production) is available with the compilation switch `-d:backend_native`
 
