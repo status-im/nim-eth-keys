@@ -11,11 +11,13 @@ By default, Nim eth-keys uses Bitcoin's [libsecp256k1](https://github.com/bitcoi
 
 An experimental pure Nim backend (Warning ⚠: do not use in production) is available with the compilation switch `-d:backend_native`
 
+## Installation
+nimble install https://github.com/status-im/nim-eth-keys/blob/master/eth_keys.nimble
+
+
 ## License
 
-Licensed under either of
+Distributed under one of the following:
 
- * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
- * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-at your option.
+* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
