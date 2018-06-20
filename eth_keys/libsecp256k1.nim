@@ -318,3 +318,17 @@ proc signRawMessage*(data: openarray[byte], seckey: PrivateKey,
                                       nil, nil) != 1:
     return(EthKeysStatus.Error)
   return(EthKeysStatus.Success)
+
+proc isZeroKey*(seckey: PrivateKey): bool =
+  ## Check if private key `seckey` contains only 0 bytes.
+  result = true
+  for i in seckey.data:
+    if i != byte(0):
+      result = false
+
+proc isZeroKey*(pubkey: PublicKey): bool =
+  ## Check if public key `pubkey` contains only 0 bytes.
+  result = true
+  for i in pubkey.data:
+    if i != byte(0):
+      result = false

@@ -253,3 +253,15 @@ suite "ECC/ECDSA/ECDHE tests suite":
         ecdhAgree(aliceSecret, bobPublic, secret1) == Success
         ecdhAgree(bobSecret, alicePublic, secret2) == Success
         secret1 == secret2
+
+  test "isZeroKey() checks":
+    var seckey1: PrivateKey
+    var pubkey1: PublicKey
+    var seckey2 = newPrivateKey()
+    var pubkey2 = seckey2.getPublicKey()
+
+    check:
+      seckey1.isZeroKey() == true
+      pubkey1.isZeroKey() == true
+      seckey2.isZeroKey() == false
+      pubkey2.isZeroKey() == false
