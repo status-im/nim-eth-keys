@@ -25,6 +25,20 @@ when not defined(native):
     ## Return current error message.
     result = libsecp256k1ErrorMsg()
 
+proc isZeroKey*(seckey: PrivateKey): bool =
+  ## Check if private key `seckey` contains only 0 bytes.
+  result = true
+  for i in seckey.data:
+    if i != byte(0):
+      result = false
+
+proc isZeroKey*(pubkey: PublicKey): bool =
+  ## Check if public key `pubkey` contains only 0 bytes.
+  result = true
+  for i in pubkey.data:
+    if i != byte(0):
+      result = false
+
 proc signMessage*(seckey: PrivateKey,
                   data: openarray[byte]): Signature {.inline.} =
   ## Sign message of arbitrary length `data` using private key `seckey`.
