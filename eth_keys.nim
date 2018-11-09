@@ -8,8 +8,6 @@
 
 import nimcrypto/hash, nimcrypto/keccak
 
-{.deadCodeElim:on.}
-
 type
   EthKeysStatus* = enum
     Success,  ## Operation was successful
